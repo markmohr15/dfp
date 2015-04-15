@@ -9,8 +9,8 @@
   <th> Team </th>
   <th> Position </th>
   <th> FD Salary </th>
+  <th> FD Season Pts/Game </th>
   <th> Exp ZIPS Pts/Game </th>
-  <th> Season Pts/Game
   <th> Pts/1000$ </th>
 </tr>
 </thead>
@@ -21,6 +21,7 @@
     <td> <%= batter.team %> </td>
     <td> <%= batter.position %> </td>
     <td> <%= batter.display_fd_salary %> </td>
+    <td> <%= batter.fd_season_ppg %> </td>
     <td> <%= sprintf('%.2f', batter.fd_pts_per_game) %> </td>
     <td> <%= batter.fd_pts_per_1000_dollars %> </td>
   </tr>
@@ -36,6 +37,7 @@
   <th> Team </th>
   <th> Position </th>
   <th> FD Salary </th>
+  <th> FD Season Pts/Game </th>
   <th> Exp Pts/Game </th>
   <th> Pts/$ </th>
 </tr>
@@ -47,6 +49,7 @@
     <td> <%= pitcher.team %> </td>
     <td> P </td>
     <td> <%= pitcher.display_fd_salary %> </td>
+    <td> <%= pitcher.fd_season_ppg %> </td>
     <td> <%= sprintf('%.2f', pitcher.fd_pts_per_game) %> </td>
     <td> <%= pitcher.fd_pts_per_1000_dollars %> </td>
   </tr>

@@ -2,19 +2,21 @@
 #
 # Table name: pitchers
 #
-#  id         :integer          not null, primary key
-#  name       :string
-#  team       :string
-#  wins       :integer
-#  games      :integer
-#  gs         :integer
-#  ip         :integer
-#  er         :integer
-#  so         :integer
-#  whip       :float
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  fd_salary  :integer
+#  id            :integer          not null, primary key
+#  name          :string
+#  team          :string
+#  wins          :integer
+#  games         :integer
+#  gs            :integer
+#  ip            :integer
+#  er            :integer
+#  so            :integer
+#  whip          :float
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  fd_salary     :integer
+#  fd_season_ppg :float
+#  starting      :boolean          default("false")
 #
 
 require 'rails_helper'
