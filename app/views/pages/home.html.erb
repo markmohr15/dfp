@@ -1,0 +1,56 @@
+<div class="container padding-large-horizontal">
+  <div class ="col-md-8">
+<h2> Batters </h2>
+
+<table class="table table-responsive table-striped">
+<thead>
+<tr>
+  <th> Player </th>
+  <th> Team </th>
+  <th> Position </th>
+  <th> FD Salary </th>
+  <th> Exp ZIPS Pts/Game </th>
+  <th> Season Pts/Game
+  <th> Pts/1000$ </th>
+</tr>
+</thead>
+
+<% @batters.each do |batter| %>
+  <tr>
+    <td> <%= batter.name %> </td>
+    <td> <%= batter.team %> </td>
+    <td> <%= batter.position %> </td>
+    <td> <%= batter.display_fd_salary %> </td>
+    <td> <%= sprintf('%.2f', batter.fd_pts_per_game) %> </td>
+    <td> <%= batter.fd_pts_per_1000_dollars %> </td>
+  </tr>
+<% end %>
+</table>
+
+<h2> Pitchers </h2>
+
+<table class="table table-responsive table-striped">
+<thead>
+<tr>
+  <th> Player </th>
+  <th> Team </th>
+  <th> Position </th>
+  <th> FD Salary </th>
+  <th> Exp Pts/Game </th>
+  <th> Pts/$ </th>
+</tr>
+</thead>
+
+<% @pitchers.each do |pitcher| %>
+  <tr>
+    <td> <%= pitcher.name %> </td>
+    <td> <%= pitcher.team %> </td>
+    <td> P </td>
+    <td> <%= pitcher.display_fd_salary %> </td>
+    <td> <%= sprintf('%.2f', pitcher.fd_pts_per_game) %> </td>
+    <td> <%= pitcher.fd_pts_per_1000_dollars %> </td>
+  </tr>
+<% end %>
+</table>
+</div>
+</div>
