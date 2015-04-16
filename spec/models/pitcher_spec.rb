@@ -18,6 +18,7 @@
 #  fd_season_ppg :float
 #  starting      :boolean          default("false")
 #  homers        :integer
+#  hits          :integer
 #
 
 require 'rails_helper'

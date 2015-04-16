@@ -18,6 +18,7 @@
 #  fd_season_ppg :float
 #  starting      :boolean          default("false")
 #  homers        :integer
+#  hits          :integer
 #
 
 class Pitcher < ActiveRecord::Base
