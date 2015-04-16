@@ -33,7 +33,7 @@ class Pitcher < ActiveRecord::Base
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
     data.each do |x|
-      Pitcher.create(name: x[0].join(","), team: x[1].join(","), wins: x[2].join(","), games: x[6].join(","), gs: x[5].join(","), ip: x[7].join(","), er: x[9].join(","), homers: x[10].join(",") so: x[11].join(","), whip: x[13].join(",") )
+      Pitcher.create(name: x[0].join(","), team: x[1].join(","), wins: x[2].join(","), games: x[6].join(","), gs: x[5].join(","), ip: x[7].join(","), er: x[9].join(","), homers: x[10].join(","), so: x[11].join(","), whip: x[13].join(",") )
     end
   end
 
