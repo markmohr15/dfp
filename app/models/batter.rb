@@ -68,7 +68,7 @@ class Batter < ActiveRecord::Base
     end
     data.each do |x|
       if x[0].join(",") == "P"
-        p = Pitcher.find_by(name: x[1].join(",") + "P")
+        p = Pitcher.find_by(name: (x[1].join(","))[0...-1])
         unless p.nil?
           p.update_attributes(fd_salary: (x[5].join(","))[1..-1].gsub(",", "").to_i, starting: true, fd_season_ppg: x[2].join(","))
         end
