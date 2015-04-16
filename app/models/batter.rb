@@ -58,6 +58,14 @@ class Batter < ActiveRecord::Base
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
+    Batter.all.each do |batter|
+      batter.fd_salary = nil
+      batter.save
+    end
+    Pitcher.all.each do |pitcher|
+      pitcher.fd_salary = nil
+      pitcher.save
+    end
     data.each do |x|
       if x[0].join(",") == "P"
         p = Pitcher.find_by(name: x[1].join(","))
