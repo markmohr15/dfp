@@ -4,7 +4,6 @@
 #
 #  id            :integer          not null, primary key
 #  name          :string
-#  team          :string
 #  wins          :integer
 #  games         :integer
 #  gs            :integer
@@ -19,6 +18,7 @@
 #  starting      :boolean          default("false")
 #  homers        :integer
 #  hits          :integer
+#  team_id       :integer
 #
 
 require 'rails_helper'

@@ -4,7 +4,6 @@
 #
 #  id            :integer          not null, primary key
 #  name          :string
-#  team          :string
 #  position      :text
 #  pa            :integer
 #  ab            :integer
@@ -22,9 +21,14 @@
 #  updated_at    :datetime         not null
 #  fd_salary     :integer
 #  fd_season_ppg :float
+#  pitcher_id    :integer
+#  team_id       :integer
 #
 
 class Batter < ActiveRecord::Base
+
+  belongs_to :pitcher
+  belongs_to :team
 
   def display_fd_salary
     if self.fd_salary.blank?
@@ -76,6 +80,7 @@ class Batter < ActiveRecord::Base
         b = Batter.find_by(name: x[1].join(","))
         unless b.nil?
           b.update_attributes(fd_salary: (x[5].join(","))[1..-1].gsub(",", "").to_i, fd_season_ppg: x[2].join(","))
+          b.get_pitcher_id
         end
       end
     end
@@ -92,8 +97,20 @@ class Batter < ActiveRecord::Base
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
     data.each do |x|
-      Batter.create(name: x[0].join(","), team: x[1].join(","), pa: x[3].join(","), ab: x[4].join(","), hits: x[5].join(","), doubles: x[6].join(","), triples: x[7].join(","), homers: x[8].join(","), runs: x[9].join(","), rbis: x[10].join(","), walks: x[11].join(","), hbps: x[13].join(","), sb: x[14].join(","), cs: x[15].join(",") )
+      Batter.create(name: x[0].join(","), team_id: (Team.where(name: x[1].join(",")).first_or_create).id, pa: x[3].join(","), ab: x[4].join(","), hits: x[5].join(","), doubles: x[6].join(","), triples: x[7].join(","), homers: x[8].join(","), runs: x[9].join(","), rbis: x[10].join(","), walks: x[11].join(","), hbps: x[13].join(","), sb: x[14].join(","), cs: x[15].join(",") )
     end
+  end
+
+  def get_pitcher_id
+    game = Matchup.find_by("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id)
+    return if game.nil?
+    if game.visitor_id == self.team_id
+      opp_team_id = game.home_id
+    elsif game.home_id == self.team_id
+      opp_team_id = game.visitor_id
+    end
+    self.pitcher = Pitcher.find_by("team_id in (?) and fd_salary > ?", opp_team_id, 0)
+    self.save
   end
 
 end

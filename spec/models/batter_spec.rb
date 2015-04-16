@@ -4,7 +4,6 @@
 #
 #  id            :integer          not null, primary key
 #  name          :string
-#  team          :string
 #  position      :text
 #  pa            :integer
 #  ab            :integer
@@ -22,6 +21,8 @@
 #  updated_at    :datetime         not null
 #  fd_salary     :integer
 #  fd_season_ppg :float
+#  pitcher_id    :integer
+#  team_id       :integer
 #
 
 require 'rails_helper'
