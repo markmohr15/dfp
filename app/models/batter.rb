@@ -81,21 +81,6 @@ class Batter < ActiveRecord::Base
     end
   end
 
-  def self.get_zips_pitcher_data
-    agent = Mechanize.new
-    stuff = []
-    for i in 1..30
-      stuff += agent.get('http://www.fangraphs.com/projections.aspx?pos=all&stats=pit&type=rzips&team=' + i.to_s + '&lg=all&players=0').search(".rgRow")
-      stuff += agent.get('http://www.fangraphs.com/projections.aspx?pos=all&stats=pit&type=rzips&team=' + i.to_s + '&lg=all&players=0').search(".rgAltRow")
-    end
-    data = stuff.map do |node|
-      node.children.map{|n| [n.text.strip] if n.elem? }.compact
-    end.compact
-    data.each do |x|
-      Pitcher.create(name: x[0].join(","), team: x[1].join(","), wins: x[2].join(","), games: x[6].join(","), gs: x[5].join(","), ip: x[7].join(","), er: x[9].join(","), so: x[11].join(","), whip: x[13].join(",") )
-    end
-  end
-
   def self.get_zips_batter_data
     agent = Mechanize.new
     stuff = []

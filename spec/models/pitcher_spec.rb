@@ -17,6 +17,7 @@
 #  fd_salary     :integer
 #  fd_season_ppg :float
 #  starting      :boolean          default("false")
+#  homers        :integer
 #
 
 require 'rails_helper'
