@@ -69,7 +69,7 @@ class Batter < ActiveRecord::Base
   end
 
   def self.catchers_sorted_by_adj_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "1B").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
+    Batter.where("fd_salary > ? and position = ?", 0, "C").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
   def self.firstbasemen_sorted_by_adj_fd_pts_per_1000_dollars
