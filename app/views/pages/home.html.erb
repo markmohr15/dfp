@@ -1,32 +1,5 @@
 <div class="container padding-large-horizontal">
   <div class ="col-md-8">
-<h2> Batters </h2>
-
-<table class="table table-responsive table-striped">
-<thead>
-<tr>
-  <th> Player </th>
-  <th> Team </th>
-  <th> Position </th>
-  <th> FD Salary </th>
-  <th> FD Season Pts/Game </th>
-  <th> Exp ZIPS Pts/Game </th>
-  <th> Pts/1000$ </th>
-</tr>
-</thead>
-
-<% @batters.each do |batter| %>
-  <tr>
-    <td> <%= batter.name %> </td>
-    <td> <%= batter.team.name %> </td>
-    <td> <%= batter.position %> </td>
-    <td> <%= batter.display_fd_salary %> </td>
-    <td> <%= batter.fd_season_ppg %> </td>
-    <td> <%= sprintf('%.2f', batter.fd_pts_per_game) %> </td>
-    <td> <%= batter.fd_pts_per_1000_dollars %> </td>
-  </tr>
-<% end %>
-</table>
 
 <h2> Pitchers </h2>
 
@@ -52,6 +25,198 @@
     <td> <%= pitcher.fd_season_ppg %> </td>
     <td> <%= sprintf('%.2f', pitcher.fd_pts_per_game) %> </td>
     <td> <%= pitcher.fd_pts_per_1000_dollars %> </td>
+  </tr>
+<% end %>
+</table>
+
+<h2> Catchers </h2>
+
+<table class="table table-responsive table-striped">
+<thead>
+<tr>
+  <th> Player </th>
+  <th> Team </th>
+  <th> Position </th>
+  <th> FD Salary </th>
+  <th> FD Season Pts/Game </th>
+  <th> Exp ZIPS Pts/Game </th>
+  <th> Pts/1000$ </th>
+  <th> Exp ZIPS Adj Pts/Game </th>
+  <th> Adj Pts/1000$ </th>
+</tr>
+</thead>
+
+<% @catchers.each do |catcher| %>
+  <tr>
+    <td> <%= catcher.name %> </td>
+    <td> <%= catcher.team.name %> </td>
+    <td> <%= catcher.position %> </td>
+    <td> <%= catcher.display_fd_salary %> </td>
+    <td> <%= catcher.fd_season_ppg %> </td>
+    <td> <%= sprintf('%.2f', catcher.fd_pts_per_game) %> </td>
+    <td> <%= catcher.fd_pts_per_1000_dollars %> </td>
+    <td> <%= catcher.adj_fd_pts_per_game %> </td>
+    <td> <%= catcher.adj_fd_pts_per_1000_dollars %> </td>
+  </tr>
+<% end %>
+</table>
+
+<h2> 1B </h2>
+
+<table class="table table-responsive table-striped">
+<thead>
+<tr>
+  <th> Player </th>
+  <th> Team </th>
+  <th> Position </th>
+  <th> FD Salary </th>
+  <th> FD Season Pts/Game </th>
+  <th> Exp ZIPS Pts/Game </th>
+  <th> Pts/1000$ </th>
+  <th> Exp ZIPS Adj Pts/Game </th>
+  <th> Adj Pts/1000$ </th>
+</tr>
+</thead>
+
+<% @firstbasemen.each do |fb| %>
+  <tr>
+    <td> <%= fb.name %> </td>
+    <td> <%= fb.team.name %> </td>
+    <td> <%= fb.position %> </td>
+    <td> <%= fb.display_fd_salary %> </td>
+    <td> <%= fb.fd_season_ppg %> </td>
+    <td> <%= sprintf('%.2f', fb.fd_pts_per_game) %> </td>
+    <td> <%= fb.fd_pts_per_1000_dollars %> </td>
+    <td> <%= fb.adj_fd_pts_per_game %> </td>
+    <td> <%= fb.adj_fd_pts_per_1000_dollars %> </td>
+  </tr>
+<% end %>
+</table>
+
+<h2> 2B </h2>
+
+<table class="table table-responsive table-striped">
+<thead>
+<tr>
+  <th> Player </th>
+  <th> Team </th>
+  <th> Position </th>
+  <th> FD Salary </th>
+  <th> FD Season Pts/Game </th>
+  <th> Exp ZIPS Pts/Game </th>
+  <th> Pts/1000$ </th>
+  <th> Exp ZIPS Adj Pts/Game </th>
+  <th> Adj Pts/1000$ </th>
+</tr>
+</thead>
+
+<% @secondbasemen.each do |sb| %>
+  <tr>
+    <td> <%= sb.name %> </td>
+    <td> <%= sb.team.name %> </td>
+    <td> <%= sb.position %> </td>
+    <td> <%= sb.display_fd_salary %> </td>
+    <td> <%= sb.fd_season_ppg %> </td>
+    <td> <%= sprintf('%.2f', sb.fd_pts_per_game) %> </td>
+    <td> <%= sb.fd_pts_per_1000_dollars %> </td>
+    <td> <%= sb.adj_fd_pts_per_game %> </td>
+    <td> <%= sb.adj_fd_pts_per_1000_dollars %> </td>
+  </tr>
+<% end %>
+</table>
+
+<h2> 3B </h2>
+
+<table class="table table-responsive table-striped">
+<thead>
+<tr>
+  <th> Player </th>
+  <th> Team </th>
+  <th> Position </th>
+  <th> FD Salary </th>
+  <th> FD Season Pts/Game </th>
+  <th> Exp ZIPS Pts/Game </th>
+  <th> Pts/1000$ </th>
+  <th> Exp ZIPS Adj Pts/Game </th>
+  <th> Adj Pts/1000$ </th>
+</tr>
+</thead>
+
+<% @thirdbasemen.each do |tb| %>
+  <tr>
+    <td> <%= tb.name %> </td>
+    <td> <%= tb.team.name %> </td>
+    <td> <%= tb.position %> </td>
+    <td> <%= tb.display_fd_salary %> </td>
+    <td> <%= tb.fd_season_ppg %> </td>
+    <td> <%= sprintf('%.2f', tb.fd_pts_per_game) %> </td>
+    <td> <%= tb.fd_pts_per_1000_dollars %> </td>
+    <td> <%= tb.adj_fd_pts_per_game %> </td>
+    <td> <%= tb.adj_fd_pts_per_1000_dollars %> </td>
+  </tr>
+<% end %>
+</table>
+
+<h2> SS </h2>
+
+<table class="table table-responsive table-striped">
+<thead>
+<tr>
+  <th> Player </th>
+  <th> Team </th>
+  <th> Position </th>
+  <th> FD Salary </th>
+  <th> FD Season Pts/Game </th>
+  <th> Exp ZIPS Pts/Game </th>
+  <th> Pts/1000$ </th>
+  <th> Exp ZIPS Adj Pts/Game </th>
+  <th> Adj Pts/1000$ </th>
+</tr>
+</thead>
+
+<% @shortstops.each do |ss| %>
+  <tr>
+    <td> <%= ss.name %> </td>
+    <td> <%= ss.team.name %> </td>
+    <td> <%= ss.position %> </td>
+    <td> <%= ss.display_fd_salary %> </td>
+    <td> <%= ss.fd_season_ppg %> </td>
+    <td> <%= sprintf('%.2f', ss.fd_pts_per_game) %> </td>
+    <td> <%= ss.fd_pts_per_1000_dollars %> </td>
+    <td> <%= ss.adj_fd_pts_per_game %> </td>
+    <td> <%= ss.adj_fd_pts_per_1000_dollars %> </td>
+  </tr>
+<% end %>
+</table>
+
+<h2> OF </h2>
+
+<table class="table table-responsive table-striped">
+<thead>
+<tr>
+  <th> Player </th>
+  <th> Team </th>
+  <th> Position </th>
+  <th> FD Salary </th>
+  <th> FD Season Pts/Game </th>
+  <th> Exp ZIPS Pts/Game </th>
+  <th> Pts/1000$ </th>
+  <th> Exp ZIPS Adj Pts/Game </th>
+  <th> Adj Pts/1000$ </th>
+</tr>
+</thead>
+
+<% @outfielders.each do |of| %>
+  <tr>
+    <td> <%= of.name %> </td>
+    <td> <%= of.team.name %> </td>
+    <td> <%= of.position %> </td>
+    <td> <%= of.display_fd_salary %> </td>
+    <td> <%= of.fd_season_ppg %> </td>
+    <td> <%= sprintf('%.2f', of.fd_pts_per_game) %> </td>
+    <td> <%= of.fd_pts_per_1000_dollars %> </td>
+    <td> <%= of.adj_fd_pts_per_game %> </td>
+    <td> <%= of.adj_fd_pts_per_1000_dollars %> </td>
   </tr>
 <% end %>
 </table>

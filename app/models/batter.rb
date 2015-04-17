@@ -52,8 +52,44 @@ class Batter < ActiveRecord::Base
     end
   end
 
-  def self.sorted_by_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > 0").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  def adj_fd_pts_per_game
+    if self.pitcher.blank?
+      "N/A"
+    else
+      sprintf('%.2f', self.pitcher.fd_exp_pts_allowed / 20.4 * self.fd_pts_per_game)
+    end
+  end
+
+  def adj_fd_pts_per_1000_dollars
+    if self.fd_salary.blank? || self.pitcher.blank?
+      "N/A"
+    else
+      sprintf('%.2f', self.adj_fd_pts_per_game.to_f / self.fd_salary * 1000)
+    end
+  end
+
+  def self.catchers_sorted_by_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "1B").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  end
+
+  def self.firstbasemen_sorted_by_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "1B").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  end
+
+  def self.secondbasemen_sorted_by_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "2B").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  end
+
+  def self.thirdbasemen_sorted_by_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "3B").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  end
+
+  def self.shortstops_sorted_by_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "SS").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  end
+
+  def self.outfielders_sorted_by_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "OF").sort_by(&:fd_pts_per_1000_dollars).reverse!
   end
 
   def self.get_fd_data url
@@ -79,7 +115,7 @@ class Batter < ActiveRecord::Base
       else
         b = Batter.find_by(name: x[1].join(","))
         unless b.nil?
-          b.update_attributes(fd_salary: (x[5].join(","))[1..-1].gsub(",", "").to_i, fd_season_ppg: x[2].join(","))
+          b.update_attributes(position: x[0].join(","), fd_salary: (x[5].join(","))[1..-1].gsub(",", "").to_i, fd_season_ppg: x[2].join(","))
           b.get_pitcher_id
         end
       end
