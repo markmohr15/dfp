@@ -68,28 +68,28 @@ class Batter < ActiveRecord::Base
     end
   end
 
-  def self.catchers_sorted_by_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "1B").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  def self.catchers_sorted_by_adj_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "1B").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
-  def self.firstbasemen_sorted_by_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "1B").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  def self.firstbasemen_sorted_by_adj_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "1B").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
-  def self.secondbasemen_sorted_by_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "2B").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  def self.secondbasemen_sorted_by_adj_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "2B").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
-  def self.thirdbasemen_sorted_by_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "3B").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  def self.thirdbasemen_sorted_by_adj_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "3B").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
-  def self.shortstops_sorted_by_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "SS").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  def self.shortstops_sorted_by_adj_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "SS").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
-  def self.outfielders_sorted_by_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "OF").sort_by(&:fd_pts_per_1000_dollars).reverse!
+  def self.outfielders_sorted_by_adj_fd_pts_per_1000_dollars
+    Batter.where("fd_salary > ? and position = ?", 0, "OF").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
   def self.get_fd_data url

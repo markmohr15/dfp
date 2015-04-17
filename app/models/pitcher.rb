@@ -87,4 +87,15 @@ class Pitcher < ActiveRecord::Base
       self.whip * self.ip + 0.063 * self.ip * 2 + ip * 3.0 * -0.25) / self.ip * 9.0
   end
 
+  def opponent
+    game = Matchup.find_by("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id)
+    return if game.nil?
+    if game.visitor_id == self.team_id
+      opp_team = game.home.name
+    elsif game.home_id == self.team_id
+      opp_team = game.visitor.name
+    end
+    opp_team
+  end
+
 end
