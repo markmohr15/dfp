@@ -48,7 +48,7 @@ class Batter < ActiveRecord::Base
     if self.fd_salary.blank?
       "N/A"
     else
-      sprintf('%.2f', self.fd_pts_per_game / self.fd_salary * 1000)
+      (self.fd_pts_per_game / self.fd_salary * 1000).round(2)
     end
   end
 
@@ -56,7 +56,7 @@ class Batter < ActiveRecord::Base
     if self.pitcher.blank?
       "N/A"
     else
-      sprintf('%.2f', self.pitcher.fd_exp_pts_allowed / 20.4 * self.fd_pts_per_game)
+      (self.pitcher.fd_exp_pts_allowed / 20.4 * self.fd_pts_per_game).round(2)
     end
   end
 
