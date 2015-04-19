@@ -163,13 +163,13 @@ class Batter < ActiveRecord::Base
   end
 
   def self.optimal_fd
-    catchers = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "C", 0, 0).limit(2)
-    firsts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "1B", 0, 0).limit(2)
-    seconds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "2B", 0, 0).limit(2)
-    thirds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "3B", 0, 0).limit(2)
-    shorts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "SS", 0, 0).limit(2)
-    ofs = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "OF", 0, 0).limit(4)
-    pitchers = Pitcher.where("fd_salary > 0").limit(2)
+    catchers = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "C", 0, 0).limit(10)
+    firsts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "1B", 0, 0).limit(10)
+    seconds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "2B", 0, 0).limit(10)
+    thirds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "3B", 0, 0).limit(10)
+    shorts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "SS", 0, 0).limit(10)
+    ofs = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "OF", 0, 0).limit(30)
+    pitchers = Pitcher.where("fd_salary > 0").limit(10)
     pts_counter = 0
     salary_counter = 0
     roster = []
