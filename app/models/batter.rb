@@ -253,7 +253,6 @@ class Batter < ActiveRecord::Base
       pts_counter -= c.adj_fd_ppg
       salary_counter -= c.fd_salary
     end
-    binding.pry
     team + " " + high_score.round(2).to_s + " $" + high_salary.to_s
   end
 end
