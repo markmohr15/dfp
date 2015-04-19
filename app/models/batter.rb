@@ -163,18 +163,18 @@ class Batter < ActiveRecord::Base
   end
 
   def self.optimal_fd
-    catchers = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "C", 0, 0)
-    firsts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "1B", 0, 0)
-    seconds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "2B", 0, 0)
-    thirds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "3B", 0, 0)
-    shorts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "SS", 0, 0)
-    ofs = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "OF", 0, 0)
-    pitchers = Pitcher.where("fd_salary > 0")
+    catchers = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "C", 0, 0).limit(2)
+    firsts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "1B", 0, 0).limit(2)
+    seconds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "2B", 0, 0).limit(2)
+    thirds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "3B", 0, 0).limit(2)
+    shorts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "SS", 0, 0).limit(2)
+    ofs = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "OF", 0, 0).limit(4)
+    pitchers = Pitcher.where("fd_salary > 0").limit(2)
     pts_counter = 0
     salary_counter = 0
     roster = []
     high_score = 0
-    high_roster = []
+    team = ""
     high_salary = 0
     catchers.each do |c|
       roster << c.name
@@ -213,8 +213,8 @@ class Batter < ActiveRecord::Base
                       pts_counter += p.fd_pts_per_game
                       salary_counter += p.fd_salary
                       if salary_counter <= 50000 && pts_counter > high_score && roster.uniq.length == roster.length
-                        high_score = salary_counter
-                        high_roster = roster
+                        high_score = pts_counter
+                        team = roster.join(", ")
                         high_salary = salary_counter
                       end
                       roster.pop
@@ -253,7 +253,8 @@ class Batter < ActiveRecord::Base
       pts_counter -= c.adj_fd_ppg
       salary_counter -= c.fd_salary
     end
-    roster.join(", ") + " " + high_score + " $" + high_salary
+    binding.pry
+    team + " " + high_score.round(2).to_s + " $" + high_salary.to_s
   end
 end
 
