@@ -78,7 +78,7 @@ class Batter < ActiveRecord::Base
 
   def set_adj_fd_ppg
     return if self.pitcher.blank?
-    (self.pitcher.fd_exp_pts_allowed / 20.4 * self.fd_pts_per_game).round(2)
+    self.adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 20.4 * self.fd_pts_per_game).round(2)
   end
 
   def self.catchers_sorted_by_adj_fd_pts_per_1000_dollars
