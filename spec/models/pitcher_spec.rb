@@ -20,6 +20,10 @@
 #  hits          :integer
 #  team_id       :integer
 #
+# Indexes
+#
+#  index_pitchers_on_team_id  (team_id)
+#
 
 require 'rails_helper'
 

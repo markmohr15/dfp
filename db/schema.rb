@@ -11,25 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150416172025) do
+ActiveRecord::Schema.define(version: 20150419155849) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "active_admin_comments", force: :cascade do |t|
-    t.string   "namespace"
-    t.text     "body"
-    t.string   "resource_id",   null: false
-    t.string   "resource_type", null: false
-    t.integer  "author_id"
-    t.string   "author_type"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "active_admin_comments", ["author_type", "author_id"], name: "index_active_admin_comments_on_author_type_and_author_id", using: :btree
-  add_index "active_admin_comments", ["namespace"], name: "index_active_admin_comments_on_namespace", using: :btree
-  add_index "active_admin_comments", ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource_type_and_resource_id", using: :btree
 
   create_table "admin_users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
@@ -70,7 +55,11 @@ ActiveRecord::Schema.define(version: 20150416172025) do
     t.float    "fd_season_ppg"
     t.integer  "pitcher_id"
     t.integer  "team_id"
+    t.float    "adj_fd_ppg"
   end
+
+  add_index "batters", ["pitcher_id"], name: "index_batters_on_pitcher_id", using: :btree
+  add_index "batters", ["team_id"], name: "index_batters_on_team_id", using: :btree
 
   create_table "matchups", force: :cascade do |t|
     t.integer  "visitor_id"
@@ -78,6 +67,9 @@ ActiveRecord::Schema.define(version: 20150416172025) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_index "matchups", ["home_id"], name: "index_matchups_on_home_id", using: :btree
+  add_index "matchups", ["visitor_id"], name: "index_matchups_on_visitor_id", using: :btree
 
   create_table "pitchers", force: :cascade do |t|
     t.string   "name"
@@ -97,6 +89,8 @@ ActiveRecord::Schema.define(version: 20150416172025) do
     t.integer  "hits"
     t.integer  "team_id"
   end
+
+  add_index "pitchers", ["team_id"], name: "index_pitchers_on_team_id", using: :btree
 
   create_table "teams", force: :cascade do |t|
     t.string   "name"

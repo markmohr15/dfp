@@ -23,6 +23,12 @@
 #  fd_season_ppg :float
 #  pitcher_id    :integer
 #  team_id       :integer
+#  adj_fd_ppg    :float
+#
+# Indexes
+#
+#  index_batters_on_pitcher_id  (pitcher_id)
+#  index_batters_on_team_id     (team_id)
 #
 
 require 'rails_helper'

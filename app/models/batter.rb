@@ -23,12 +23,20 @@
 #  fd_season_ppg :float
 #  pitcher_id    :integer
 #  team_id       :integer
+#  adj_fd_ppg    :float
+#
+# Indexes
+#
+#  index_batters_on_pitcher_id  (pitcher_id)
+#  index_batters_on_team_id     (team_id)
 #
 
 class Batter < ActiveRecord::Base
 
   belongs_to :pitcher
   belongs_to :team
+
+  before_save :set_adj_fd_ppg
 
   def display_fd_salary
     if self.fd_salary.blank?
@@ -66,6 +74,11 @@ class Batter < ActiveRecord::Base
     else
       sprintf('%.2f', self.adj_fd_pts_per_game.to_f / self.fd_salary * 1000)
     end
+  end
+
+  def set_adj_fd_ppg
+    return if self.pitcher.blank?
+    (self.pitcher.fd_exp_pts_allowed / 20.4 * self.fd_pts_per_game).round(2)
   end
 
   def self.catchers_sorted_by_adj_fd_pts_per_1000_dollars
@@ -149,4 +162,105 @@ class Batter < ActiveRecord::Base
     self.save
   end
 
+  def self.optimal_fd
+    catchers = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "C", 0, 0)
+    firsts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "1B", 0, 0)
+    seconds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "2B", 0, 0)
+    thirds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "3B", 0, 0)
+    shorts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "SS", 0, 0)
+    ofs = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "OF", 0, 0)
+    pitchers = Pitcher.where("fd_salary > 0")
+    pts_counter = 0
+    salary_counter = 0
+    roster = []
+    high_score = 0
+    high_roster = []
+    high_salary = 0
+    catchers.each do |c|
+      roster << c.name
+      pts_counter += c.adj_fd_ppg
+      salary_counter += c.fd_salary
+      firsts.each do |f|
+        roster << f.name
+        pts_counter += f.adj_fd_ppg
+        salary_counter += f.fd_salary
+        seconds.each do |s|
+          roster << s.name
+          pts_counter += s.adj_fd_ppg
+          salary_counter += s.fd_salary
+          thirds.each do |t|
+            roster << t.name
+            pts_counter += t.adj_fd_ppg
+            salary_counter += t.fd_salary
+            shorts.each do |ss|
+              roster << ss.name
+              pts_counter += ss.adj_fd_ppg
+              salary_counter += ss.fd_salary
+              ofs.each do |ofa|
+                roster << ofa.name
+                pts_counter += ofa.adj_fd_ppg
+                salary_counter += ofa.fd_salary
+                ofs.each do |ofb|
+                  roster << ofb.name
+                  pts_counter += ofb.adj_fd_ppg
+                  salary_counter += ofb.fd_salary
+                  ofs.each do |ofc|
+                    roster << ofc.name
+                    pts_counter += ofc.adj_fd_ppg
+                    salary_counter += ofc.fd_salary
+                    pitchers.each do |p|
+                      roster << p.name
+                      pts_counter += p.fd_pts_per_game
+                      salary_counter += p.fd_salary
+                      if salary_counter <= 50000 && pts_counter > high_score && roster.uniq.length == roster.length
+                        high_score = salary_counter
+                        high_roster = roster
+                        high_salary = salary_counter
+                      end
+                      roster.pop
+                      pts_counter -= p.fd_pts_per_game
+                      salary_counter -= p.fd_salary
+                    end
+                    roster.pop
+                    pts_counter -= ofc.adj_fd_ppg
+                    salary_counter -= ofc.fd_salary
+                  end
+                  roster.pop
+                  pts_counter -= ofb.adj_fd_ppg
+                  salary_counter -= ofb.fd_salary
+                end
+                roster.pop
+                pts_counter -= ofa.adj_fd_ppg
+                salary_counter -= ofa.fd_salary
+              end
+              roster.pop
+              pts_counter -= ss.adj_fd_ppg
+              salary_counter -= ss.fd_salary
+            end
+            roster.pop
+            pts_counter -= t.adj_fd_ppg
+            salary_counter -= t.fd_salary
+          end
+          roster.pop
+          pts_counter -= s.adj_fd_ppg
+          salary_counter -= s.fd_salary
+        end
+        roster.pop
+        pts_counter -= f.adj_fd_ppg
+        salary_counter -= f.fd_salary
+      end
+      roster.pop
+      pts_counter -= c.adj_fd_ppg
+      salary_counter -= c.fd_salary
+    end
+    roster.join(", ") + " " + high_score + " $" + high_salary
+  end
 end
+
+
+
+
+
+
+
+

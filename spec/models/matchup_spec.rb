@@ -8,6 +8,11 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
+# Indexes
+#
+#  index_matchups_on_home_id     (home_id)
+#  index_matchups_on_visitor_id  (visitor_id)
+#
 
 require 'rails_helper'
 
