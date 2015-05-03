@@ -15,4 +15,6 @@ class Team < ActiveRecord::Base
   has_many :batters
   has_many :pitchers
 
+  accepts_nested_attributes_for :batters
+
 end

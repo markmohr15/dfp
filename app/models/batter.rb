@@ -24,6 +24,7 @@
 #  pitcher_id    :integer
 #  team_id       :integer
 #  adj_fd_ppg    :float
+#  lineup_spot   :integer
 #
 # Indexes
 #
@@ -46,10 +47,35 @@ class Batter < ActiveRecord::Base
     end
   end
 
+  def papg #plate app/game
+    case self.lineup_spot
+    when 1
+      4.649
+    when 2
+      4.538
+    when 3
+      4.427
+    when 4
+      4.316
+    when 5
+      4.205
+    when 6
+      4.094
+    when 7
+      3.983
+    when 8
+      3.872
+    when 9
+      3.761
+    else
+      0
+    end
+  end
+
   def fd_pts_per_game
     season_pts = self.hits * 1 + self.doubles * 1 + self.triples * 2 + self.homers * 3 + self.rbis * 1 +
      self.runs * 1 + self.walks * 1 + self.sb * 2 + self.hbps * 1 + (ab - hits) * -0.25
-    season_pts / pa * 4.25
+    season_pts / pa * self.at_bats_pg
   end
 
   def fd_pts_per_1000_dollars
@@ -77,32 +103,35 @@ class Batter < ActiveRecord::Base
   end
 
   def set_adj_fd_ppg
-    return if self.pitcher.blank?
-    self.adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 20.4 * self.fd_pts_per_game).round(2)
+    if self.pitcher.blank?
+      self.adj_fd_ppg = 0
+    else
+      self.adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 20.4 * self.fd_pts_per_game).round(2)
+    end
   end
 
   def self.catchers_sorted_by_adj_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "C").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
+    Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "C", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
   def self.firstbasemen_sorted_by_adj_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "1B").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
+    Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "1B", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
   def self.secondbasemen_sorted_by_adj_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "2B").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
+    Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "2B", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
   def self.thirdbasemen_sorted_by_adj_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "3B").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
+    Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "3B", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
   def self.shortstops_sorted_by_adj_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "SS").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
+    Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "SS", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
   def self.outfielders_sorted_by_adj_fd_pts_per_1000_dollars
-    Batter.where("fd_salary > ? and position = ?", 0, "OF").sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
+    Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "OF", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
   def self.get_fd_data url
@@ -146,7 +175,8 @@ class Batter < ActiveRecord::Base
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
     data.each do |x|
-      Batter.create(name: x[0].join(","), team_id: (Team.where(name: x[1].join(",")).first_or_create).id, pa: x[3].join(","), ab: x[4].join(","), hits: x[5].join(","), doubles: x[6].join(","), triples: x[7].join(","), homers: x[8].join(","), runs: x[9].join(","), rbis: x[10].join(","), walks: x[11].join(","), hbps: x[13].join(","), sb: x[14].join(","), cs: x[15].join(",") )
+      batter = Batter.where(name: x[0].join(",")).first_or_initialize
+      batter.update_attributes(team_id: (Team.where(name: x[1].join(",")).first_or_create).id, pa: x[3].join(","), ab: x[4].join(","), hits: x[5].join(","), doubles: x[6].join(","), triples: x[7].join(","), homers: x[8].join(","), runs: x[9].join(","), rbis: x[10].join(","), walks: x[11].join(","), hbps: x[13].join(","), sb: x[14].join(","), cs: x[15].join(",") )
     end
   end
 
@@ -163,13 +193,13 @@ class Batter < ActiveRecord::Base
   end
 
   def self.optimal_fd
-    catchers = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "C", 0, 0)
-    firsts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "1B", 0, 0)
-    seconds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "2B", 0, 0)
-    thirds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "3B", 0, 0)
-    shorts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "SS", 0, 0)
-    ofs = Batter.where("position = ? and fd_salary > ? and pitcher_id > ?", "OF", 0, 0)
-    pitchers = Pitcher.where("fd_salary > 0")
+    catchers = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "C", 0, 0, 1.40, 0).limit(6)
+    firsts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "1B", 0, 0, 1.6, 0).limit(6)
+    seconds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "2B", 0, 0, 1.22, 0).limit(6)
+    thirds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "3B", 0, 0, 1.75, 0).limit(6)
+    shorts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "SS", 0, 0, 1.55, 0).limit(6)
+    ofs = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "OF", 0, 0, 1.14, 0).limit(10)
+    pitchers = Pitcher.where("fd_salary > ?", 0).limit(6)
     pts_counter = 0
     salary_counter = 0
     roster = []
@@ -212,7 +242,7 @@ class Batter < ActiveRecord::Base
                       roster << p.name
                       pts_counter += p.fd_pts_per_game
                       salary_counter += p.fd_salary
-                      if salary_counter <= 50000 && pts_counter > high_score && roster.uniq.length == roster.length
+                      if salary_counter <= 35000 && pts_counter > high_score && roster.uniq.length == roster.length
                         high_score = pts_counter
                         team = roster.join(", ")
                         high_salary = salary_counter

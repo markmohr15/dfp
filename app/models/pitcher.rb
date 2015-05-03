@@ -95,7 +95,7 @@ class Pitcher < ActiveRecord::Base
     game = Matchup.find_by("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id)
     return if game.nil?
     if game.visitor_id == self.team_id
-      opp_team = game.home.name
+      opp_team = "@ " + game.home.name
     elsif game.home_id == self.team_id
       opp_team = game.visitor.name
     end
