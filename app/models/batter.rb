@@ -135,20 +135,37 @@ class Batter < ActiveRecord::Base
     Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "OF", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
+  def self.get_lineups url
+    agent = Mechanize.new
+    stuff = agent.get(url).search('.players')
+    data = stuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    adds = []
+    Batter.update_all lineup_spot: nil
+    data.flatten.each do |x|
+      if x[-1] == "P"
+      else
+        b = Batter.find_by(name: x.split[1..2].join(" "))
+        unless b.nil?
+          b.lineup_spot = x[0]
+          b.save
+        else
+          adds << x.split[1..2].join(" ")
+        end
+      end
+    end
+    adds
+  end
+
   def self.get_fd_data url
     agent = Mechanize.new
     stuff = agent.get(url).search(".pR")
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Batter.all.each do |batter|
-      batter.fd_salary = nil
-      batter.save
-    end
-    Pitcher.all.each do |pitcher|
-      pitcher.fd_salary = nil
-      pitcher.save
-    end
+    Batter.update_all fd_salary: nil
+    Pitcher.update_all fd_salary: nil
     data.each do |x|
       if x[0].join(",") == "P"
         p = Pitcher.find_by(name: (x[1].join(","))[0...-1])
