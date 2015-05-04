@@ -25,6 +25,7 @@
 #  team_id       :integer
 #  adj_fd_ppg    :float
 #  lineup_spot   :integer
+#  selected      :boolean
 #
 # Indexes
 #

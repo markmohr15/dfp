@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150422024506) do
+ActiveRecord::Schema.define(version: 20150503203501) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -57,6 +57,7 @@ ActiveRecord::Schema.define(version: 20150422024506) do
     t.integer  "team_id"
     t.float    "adj_fd_ppg"
     t.integer  "lineup_spot"
+    t.boolean  "selected"
   end
 
   add_index "batters", ["pitcher_id"], name: "index_batters_on_pitcher_id", using: :btree
@@ -89,6 +90,7 @@ ActiveRecord::Schema.define(version: 20150422024506) do
     t.integer  "homers"
     t.integer  "hits"
     t.integer  "team_id"
+    t.boolean  "selected"
   end
 
   add_index "pitchers", ["team_id"], name: "index_pitchers_on_team_id", using: :btree

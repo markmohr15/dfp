@@ -25,6 +25,7 @@
 #  team_id       :integer
 #  adj_fd_ppg    :float
 #  lineup_spot   :integer
+#  selected      :boolean
 #
 # Indexes
 #
@@ -75,7 +76,7 @@ class Batter < ActiveRecord::Base
   def fd_pts_per_game
     season_pts = self.hits * 1 + self.doubles * 1 + self.triples * 2 + self.homers * 3 + self.rbis * 1 +
      self.runs * 1 + self.walks * 1 + self.sb * 2 + self.hbps * 1 + (ab - hits) * -0.25
-    season_pts / pa * self.at_bats_pg
+    season_pts / pa * self.papg
   end
 
   def fd_pts_per_1000_dollars
@@ -193,13 +194,13 @@ class Batter < ActiveRecord::Base
   end
 
   def self.optimal_fd
-    catchers = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "C", 0, 0, 1.40, 0).limit(6)
-    firsts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "1B", 0, 0, 1.6, 0).limit(6)
-    seconds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "2B", 0, 0, 1.22, 0).limit(6)
-    thirds = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "3B", 0, 0, 1.75, 0).limit(6)
-    shorts = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "SS", 0, 0, 1.55, 0).limit(6)
-    ofs = Batter.where("position = ? and fd_salary > ? and pitcher_id > ? and adj_fd_ppg > ? and lineup_spot > ?", "OF", 0, 0, 1.14, 0).limit(10)
-    pitchers = Pitcher.where("fd_salary > ?", 0).limit(6)
+    catchers = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "C", true, 0, 0)
+    firsts = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "1B", true, 0, 0)
+    seconds = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "2B", true, 0, 0)
+    thirds = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "3B", true, 0, 0)
+    shorts = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "SS", true, 0, 0)
+    ofs = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "OF", true, 0, 0)
+    pitchers = Pitcher.where("fd_salary > ? and selected = ?", 0, true)
     pts_counter = 0
     salary_counter = 0
     roster = []

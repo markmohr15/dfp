@@ -19,6 +19,7 @@
 #  homers        :integer
 #  hits          :integer
 #  team_id       :integer
+#  selected      :boolean
 #
 # Indexes
 #

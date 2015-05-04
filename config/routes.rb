@@ -3,9 +3,7 @@ Rails.application.routes.draw do
   ActiveAdmin.routes(self)
   devise_for :users
 
-  PagesController.action_methods.each do |action|
-    get "/#{action}", to: "pages##{action}", as: "#{action}_page"
-  end
+  put "/", to: "pages#update", as: :update_players
 
   root to: "pages#home"
 end

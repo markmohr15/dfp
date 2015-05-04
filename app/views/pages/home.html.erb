@@ -14,8 +14,11 @@
   <th> Exp Pts/Game </th>
   <th> Pts/$ </th>
   <th> Opponent </th>
+  <th> Select </th>
 </tr>
 </thead>
+
+<%= form_tag update_players_path, method: :put do %>
 
 <% @pitchers.each do |pitcher| %>
   <tr>
@@ -27,6 +30,7 @@
     <td> <%= sprintf('%.2f', pitcher.fd_pts_per_game) %> </td>
     <td> <%= pitcher.fd_pts_per_1000_dollars %> </td>
     <td> <%= pitcher.opponent %> </td>
+    <td><%= check_box_tag "pitcher_ids[]", pitcher.id %></td>
   </tr>
 <% end %>
 </table>
@@ -46,6 +50,7 @@
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
+  <th> Select </th>
 </tr>
 </thead>
 
@@ -61,6 +66,7 @@
     <td> <%= catcher.adj_fd_ppg %> </td>
     <td> <%= catcher.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= catcher.pitcher.name unless catcher.pitcher.blank? %> </td>
+    <td><%= check_box_tag "batter_ids[]", catcher.id %></td>
   </tr>
 <% end %>
 </table>
@@ -80,6 +86,7 @@
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
+  <th> Select </th>
 </tr>
 </thead>
 
@@ -95,6 +102,7 @@
     <td> <%= fb.adj_fd_ppg %> </td>
     <td> <%= fb.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= fb.pitcher.name unless fb.pitcher.blank? %> </td>
+    <td><%= check_box_tag "batter_ids[]", fb.id %></td>
   </tr>
 <% end %>
 </table>
@@ -114,6 +122,7 @@
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
+  <th> Select </th>
 </tr>
 </thead>
 
@@ -129,6 +138,7 @@
     <td> <%= sb.adj_fd_ppg %> </td>
     <td> <%= sb.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= sb.pitcher.name unless sb.pitcher.blank? %> </td>
+    <td><%= check_box_tag "batter_ids[]", sb.id %></td>
   </tr>
 <% end %>
 </table>
@@ -148,6 +158,7 @@
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
+  <th> Select </th>
 </tr>
 </thead>
 
@@ -163,6 +174,7 @@
     <td> <%= tb.adj_fd_ppg %> </td>
     <td> <%= tb.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= tb.pitcher.name unless tb.pitcher.blank? %> </td>
+    <td><%= check_box_tag "batter_ids[]", tb.id %></td>
   </tr>
 <% end %>
 </table>
@@ -182,6 +194,7 @@
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
+  <th> Select </th>
 </tr>
 </thead>
 
@@ -197,6 +210,7 @@
     <td> <%= ss.adj_fd_ppg %> </td>
     <td> <%= ss.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= ss.pitcher.name unless ss.pitcher.blank? %> </td>
+    <td><%= check_box_tag "batter_ids[]", ss.id %></td>
   </tr>
 <% end %>
 </table>
@@ -216,6 +230,7 @@
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
+  <th> Select </th>
 </tr>
 </thead>
 
@@ -231,8 +246,14 @@
     <td> <%= of.adj_fd_ppg %> </td>
     <td> <%= of.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= of.pitcher.name unless of.pitcher.blank? %> </td>
+    <td><%= check_box_tag "batter_ids[]", of.id %></td>
   </tr>
 <% end %>
+
 </table>
+
+<%= submit_tag %>
+<% end %>
+
 </div>
 </div>
