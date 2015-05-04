@@ -20,6 +20,8 @@ gem "bootstrap-sass", "~> 3.3.4"
 gem "inherited_resources", github: "josevalim/inherited_resources", branch: "rails-4-2"
 gem "activeadmin", github: "lazaronixon/activeadmin", branch: "master"
 gem "thin"
+gem "delayed_job_active_record"
+gem "clockwork"
 
 group :development, :test do
   # Call "byebug" anywhere in the code to stop execution and get a debugger console

@@ -135,9 +135,9 @@ class Batter < ActiveRecord::Base
     Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "OF", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
 
-  def self.get_lineups url
+  def self.get_lineups
     agent = Mechanize.new
-    stuff = agent.get(url).search('.players')
+    stuff = agent.get("http://www.baseballpress.com/lineups").search('.players')
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
