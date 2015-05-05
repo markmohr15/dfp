@@ -182,7 +182,7 @@ class Batter < ActiveRecord::Base
     end
   end
 
-  def self.get_zips_batter_data
+  def self.get_zips_batter_data  #mass import
     agent = Mechanize.new
     stuff = []
     for i in 1..30
@@ -196,6 +196,24 @@ class Batter < ActiveRecord::Base
       batter = Batter.where(name: x[0].join(",")).first_or_initialize
       batter.update_attributes(team_id: (Team.where(name: x[1].join(",")).first_or_create).id, pa: x[3].join(","), ab: x[4].join(","), hits: x[5].join(","), doubles: x[6].join(","), triples: x[7].join(","), homers: x[8].join(","), runs: x[9].join(","), rbis: x[10].join(","), walks: x[11].join(","), hbps: x[13].join(","), sb: x[14].join(","), cs: x[15].join(",") )
     end
+  end
+
+  def self.get_zips_one_batter_hidden url, batter, team, position #indiv import with no zips on page
+    agent = Mechanize.new
+    stuff = agent.get(url).search(".grid_projections_hide")
+    data = stuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, pa: data[7][4][0], ab: data[7][3][0], hits: data[7][5][0], doubles: data[7][7][0], triples: data[7][8][0], homers: data[7][9][0], runs: data[7][10][0], rbis: data[7][11][0], walks: data[7][12][0], hbps: data[7][15][0], sb: data[7][19][0], cs: data[7][20][0] )
+  end
+
+  def self.get_zips_one_batter_data url, batter, team, position #indiv import with
+    agent = Mechanize.new
+    stuff = agent.get(url).search(".grid_projectionsin_show")
+    data = stuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, pa: data[3][4][0], ab: data[3][3][0], hits: data[3][5][0], doubles: data[3][7][0], triples: data[3][8][0], homers: data[3][9][0], runs: data[3][10][0], rbis: data[3][11][0], walks: data[3][12][0], hbps: data[3][15][0], sb: data[3][19][0], cs: data[3][20][0] )
   end
 
   def get_pitcher_id

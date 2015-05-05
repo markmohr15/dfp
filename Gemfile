@@ -21,7 +21,7 @@ gem "inherited_resources", github: "josevalim/inherited_resources", branch: "rai
 gem "activeadmin", github: "lazaronixon/activeadmin", branch: "master"
 gem "thin"
 gem "delayed_job_active_record"
-gem "clockwork"
+gem "rufus-scheduler"
 
 group :development, :test do
   # Call "byebug" anywhere in the code to stop execution and get a debugger console

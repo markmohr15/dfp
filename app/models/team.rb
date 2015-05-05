@@ -17,4 +17,9 @@ class Team < ActiveRecord::Base
 
   accepts_nested_attributes_for :batters
 
+  def fd_ppg
+    lineup = Batter.where("team_id = ? and lineup_spot > ?", self.id, 0)
+    lineup.count
+  end
+
 end
