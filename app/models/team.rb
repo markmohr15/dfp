@@ -19,7 +19,13 @@ class Team < ActiveRecord::Base
 
   def fd_ppg
     lineup = Batter.where("team_id = ? and lineup_spot > ?", self.id, 0)
-    lineup.count
+    pts_counter = 0
+    lineup.each do |x|
+      pts_counter += x.fd_pts_per_game
+    end
+    pts_counter
   end
+
+
 
 end

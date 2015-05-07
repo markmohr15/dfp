@@ -31,7 +31,7 @@ class Pitcher < ActiveRecord::Base
   has_many :batters
   belongs_to :team
 
-  def self.get_zips_pitcher_data
+  def self.get_zips_pitcher_data  #mass import
     agent = Mechanize.new
     stuff = []
     for i in 1..30
@@ -44,6 +44,15 @@ class Pitcher < ActiveRecord::Base
     data.each do |x|
       Pitcher.create(name: x[0].join(","), team_id: (Team.where(name: x[1].join(",")).first_or_create).id, wins: x[2].join(","), games: x[6].join(","), gs: x[5].join(","), ip: x[7].join(","), hits: x[8].join(","), er: x[9].join(","), homers: x[10].join(","), so: x[11].join(","), whip: x[13].join(",") )
     end
+  end
+
+  def self.get_zips_one_pitcher_data url, pitcher, team #indiv with zips on page
+    agent = Mechanize.new
+    stuff = agent.get(url).search(".grid_projectionsin_show")
+    data = stuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    Pitcher.create(name: pitcher, team_id: Team.find_by(name: team).id, wins: data[3][2][0], games: data[3][5][0], gs: data[3][6][0], ip: data[3][12][0], hits: data[3][14][0], er: data[3][16][0], homers: data[3][17][0], so: data[3][23][0], whip: data[6][10][0] )
   end
 
   def display_fd_salary

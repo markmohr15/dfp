@@ -38,7 +38,7 @@ class Batter < ActiveRecord::Base
   belongs_to :pitcher
   belongs_to :team
 
-  before_save :set_adj_fd_ppg
+  before_save :set_adj_fd_ppg, :remove_from_lineup
 
   def display_fd_salary
     if self.fd_salary.blank?
@@ -46,6 +46,14 @@ class Batter < ActiveRecord::Base
     else
       self.fd_salary
     end
+  end
+
+  def remove_from_lineup
+    batter = Batter.find_by(team_id: self.team_id, lineup_spot: self.lineup_spot)
+    return if batter.nil?
+    return if batter == self
+    batter.lineup_spot = nil
+    batter.save
   end
 
   def papg #plate app/game
@@ -84,14 +92,6 @@ class Batter < ActiveRecord::Base
       "N/A"
     else
       (self.fd_pts_per_game / self.fd_salary * 1000).round(2)
-    end
-  end
-
-  def adj_fd_pts_per_game
-    if self.pitcher.blank?
-      "N/A"
-    else
-      (self.pitcher.fd_exp_pts_allowed / 20.4 * self.fd_pts_per_game).round(2)
     end
   end
 
@@ -137,7 +137,7 @@ class Batter < ActiveRecord::Base
 
   def self.get_lineups
     agent = Mechanize.new
-    stuff = agent.get("http://www.baseballpress.com/lineups").search('.players')
+    stuff = agent.get("http://www.baseballpress.com/lineups/2015-05-06").search('.players')
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
@@ -204,10 +204,10 @@ class Batter < ActiveRecord::Base
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, pa: data[7][4][0], ab: data[7][3][0], hits: data[7][5][0], doubles: data[7][7][0], triples: data[7][8][0], homers: data[7][9][0], runs: data[7][10][0], rbis: data[7][11][0], walks: data[7][12][0], hbps: data[7][15][0], sb: data[7][19][0], cs: data[7][20][0] )
+    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, pa: data[5][4][0], ab: data[5][3][0], hits: data[5][5][0], doubles: data[5][7][0], triples: data[5][8][0], homers: data[5][9][0], runs: data[5][10][0], rbis: data[5][11][0], walks: data[5][12][0], hbps: data[5][15][0], sb: data[5][19][0], cs: data[5][20][0] )
   end
 
-  def self.get_zips_one_batter_data url, batter, team, position #indiv import with
+  def self.get_zips_one_batter_data url, batter, team, position #indiv import with zips on page
     agent = Mechanize.new
     stuff = agent.get(url).search(".grid_projectionsin_show")
     data = stuff.map do |node|
@@ -239,83 +239,104 @@ class Batter < ActiveRecord::Base
     pts_counter = 0
     salary_counter = 0
     roster = []
+    team_array = []
     high_score = 0
     team = ""
     high_salary = 0
     catchers.each do |c|
       roster << c.name
+      team_array << c.team.name
       pts_counter += c.adj_fd_ppg
       salary_counter += c.fd_salary
       firsts.each do |f|
         roster << f.name
+        team_array << f.team.name
         pts_counter += f.adj_fd_ppg
         salary_counter += f.fd_salary
         seconds.each do |s|
           roster << s.name
+          team_array << s.team.name
           pts_counter += s.adj_fd_ppg
           salary_counter += s.fd_salary
           thirds.each do |t|
             roster << t.name
+            team_array << t.team.name
             pts_counter += t.adj_fd_ppg
             salary_counter += t.fd_salary
             shorts.each do |ss|
               roster << ss.name
+              team_array << ss.team.name
               pts_counter += ss.adj_fd_ppg
               salary_counter += ss.fd_salary
               ofs.each do |ofa|
                 roster << ofa.name
+                team_array << ofa.team.name
                 pts_counter += ofa.adj_fd_ppg
                 salary_counter += ofa.fd_salary
                 ofs.each do |ofb|
                   roster << ofb.name
+                  team_array << ofb.team.name
                   pts_counter += ofb.adj_fd_ppg
                   salary_counter += ofb.fd_salary
                   ofs.each do |ofc|
                     roster << ofc.name
+                    team_array << ofc.team.name
                     pts_counter += ofc.adj_fd_ppg
                     salary_counter += ofc.fd_salary
                     pitchers.each do |p|
                       roster << p.name
+                      team_array << p.team.name
                       pts_counter += p.fd_pts_per_game
                       salary_counter += p.fd_salary
-                      if salary_counter <= 35000 && pts_counter > high_score && roster.uniq.length == roster.length
+                      freq = team_array.inject(Hash.new(0)) { |h,v| h[v] += 1; h }
+                      modeteam = team_array.max_by { |v| freq[v] }
+                      if salary_counter <= 35000 && pts_counter > high_score && roster.uniq.length == roster.length && freq[modeteam] < 5
                         high_score = pts_counter
                         team = roster.join(", ")
                         high_salary = salary_counter
                       end
                       roster.pop
+                      team_array.pop
                       pts_counter -= p.fd_pts_per_game
                       salary_counter -= p.fd_salary
                     end
                     roster.pop
+                    team_array.pop
                     pts_counter -= ofc.adj_fd_ppg
                     salary_counter -= ofc.fd_salary
                   end
                   roster.pop
+                  team_array.pop
                   pts_counter -= ofb.adj_fd_ppg
                   salary_counter -= ofb.fd_salary
                 end
                 roster.pop
+                team_array.pop
                 pts_counter -= ofa.adj_fd_ppg
                 salary_counter -= ofa.fd_salary
               end
               roster.pop
+              team_array.pop
               pts_counter -= ss.adj_fd_ppg
               salary_counter -= ss.fd_salary
             end
             roster.pop
+            team_array.pop
             pts_counter -= t.adj_fd_ppg
             salary_counter -= t.fd_salary
           end
           roster.pop
+          team_array.pop
           pts_counter -= s.adj_fd_ppg
           salary_counter -= s.fd_salary
         end
         roster.pop
+        team_array.pop
         pts_counter -= f.adj_fd_ppg
         salary_counter -= f.fd_salary
       end
       roster.pop
+      team_array.pop
       pts_counter -= c.adj_fd_ppg
       salary_counter -= c.fd_salary
     end
