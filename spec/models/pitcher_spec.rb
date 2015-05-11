@@ -15,7 +15,7 @@
 #  updated_at    :datetime         not null
 #  fd_salary     :integer
 #  fd_season_ppg :float
-#  starting      :boolean          default("false")
+#  reliever      :boolean          default("false")
 #  homers        :integer
 #  hits          :integer
 #  team_id       :integer

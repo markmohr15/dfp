@@ -15,7 +15,7 @@
 #  updated_at    :datetime         not null
 #  fd_salary     :integer
 #  fd_season_ppg :float
-#  starting      :boolean          default("false")
+#  reliever      :boolean          default("false")
 #  homers        :integer
 #  hits          :integer
 #  team_id       :integer
@@ -30,6 +30,17 @@ class Pitcher < ActiveRecord::Base
 
   has_many :batters
   belongs_to :team
+
+  def park_factor
+    game = Matchup.find_by("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id)
+    if game.nil?
+      1
+    elsif game.home_id == self.team_id
+      self.team.park_factor
+    else
+      game.visitor.park_factor
+    end
+  end
 
   def self.get_zips_pitcher_data  #mass import
     agent = Mechanize.new
@@ -97,8 +108,33 @@ class Pitcher < ActiveRecord::Base
   end
 
   def fd_exp_pts_allowed
-    (self.doubles * 1 + self.triples * 2 + self.homers * 3 + self.er * 1.034 + self.er * 1.09 +
-      self.whip * self.ip + 0.063 * self.ip * 2 + ip * 3.0 * -0.25) / self.ip * 9.0
+    starter_innings = self.ip / self.games.to_f
+    starter_pts = (self.doubles * 1 + self.triples * 2 + self.homers * 3 + self.er * 1.034 + self.er * 1.09 +
+      self.whip * self.ip + 0.063 * self.ip * 2 + ip * 3.0 * -0.25) / self.ip * starter_innings
+    relievers = Pitcher.where(team_id: self.team_id, reliever: true)
+    doubles_counter = 0
+    triples_counter = 0
+    homers_counter = 0
+    er_counter = 0
+    baserunners_counter = 0
+    ip_counter = 0
+    relievers.each do |r|
+      doubles_counter += r.doubles
+      triples_counter += r.triples
+      homers_counter += r.homers
+      er_counter += r.er
+      baserunners_counter += r.whip * r.ip
+      ip_counter += r.ip
+    end
+    reliever_pts = (doubles_counter * 1 + triples_counter * 2 + homers_counter * 3 + er_counter * 1.034 + er_counter * 1.09 +
+      baserunners_counter + 0.063 * ip_counter * 2 + ip_counter * 3.0 * -0.25) / ip_counter * (9 - starter_innings)
+    total_pts = starter_pts + reliever_pts
+    if self.team.park_factor > 1
+      total_pts = total_pts / (self.team.park_factor + 1) * self.team.park_factor
+    else
+      total_pts = total_pts / self.team.park_factor
+    end
+    total_pts * self.park_factor
   end
 
   def opponent

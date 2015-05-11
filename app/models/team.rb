@@ -2,10 +2,11 @@
 #
 # Table name: teams
 #
-#  id         :integer          not null, primary key
-#  name       :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id          :integer          not null, primary key
+#  name        :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  park_factor :float
 #
 
 class Team < ActiveRecord::Base
@@ -26,6 +27,14 @@ class Team < ActiveRecord::Base
     pts_counter
   end
 
-
+  def home?
+    game = Matchup.find_by("visitor_id in (?) or home_id in (?)", self.id, self.id)
+    return if game.nil?
+    if game.visitor_id == self.id
+      false
+    else
+      true
+    end
+  end
 
 end
