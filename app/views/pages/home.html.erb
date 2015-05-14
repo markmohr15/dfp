@@ -11,6 +11,7 @@
   <th> Position </th>
   <th> FD Salary </th>
   <th> FD Season Pts/Game </th>
+  <th> YTD FD Pts/$1000 </th>
   <th> Exp Pts/Game </th>
   <th> Pts/$ </th>
   <th> Opponent </th>
@@ -27,6 +28,7 @@
     <td> P </td>
     <td> <%= pitcher.display_fd_salary %> </td>
     <td> <%= pitcher.fd_season_ppg %> </td>
+    <td> <%= pitcher.ytd_fd_pts_per_1000_dollars %> </td>
     <td> <%= sprintf('%.2f', pitcher.fd_pts_per_game) %> </td>
     <td> <%= pitcher.fd_pts_per_1000_dollars %> </td>
     <td> <%= pitcher.opponent %> </td>
@@ -45,8 +47,10 @@
   <th> Position </th>
   <th> FD Salary </th>
   <th> FD Season Pts/Game </th>
-  <th> Exp ZIPS Pts/Game </th>
-  <th> Pts/1000$ </th>
+  <th> YTD FD Pts/$1000 </th>
+  <th> Exp ZIPS Pts/Game (pn) </th>
+  <th> ZIPS Pts/1000$ (pn) </th>
+  <th> Exp ZIPS Pts/Game (pf) </th>
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
@@ -54,19 +58,21 @@
 </tr>
 </thead>
 
-<% @catchers.each do |catcher| %>
+<% @catchers.each do |c| %>
   <tr>
-    <td> <%= catcher.name %> </td>
-    <td> <%= catcher.team.name %> </td>
-    <td> <%= catcher.position %> </td>
-    <td> <%= catcher.display_fd_salary %> </td>
-    <td> <%= catcher.fd_season_ppg %> </td>
-    <td> <%= sprintf('%.2f', catcher.fd_pts_per_game) %> </td>
-    <td> <%= catcher.fd_pts_per_1000_dollars %> </td>
-    <td> <%= catcher.adj_fd_ppg %> </td>
-    <td> <%= catcher.adj_fd_pts_per_1000_dollars %> </td>
-    <td> <%= catcher.pitcher.name unless catcher.pitcher.blank? %> </td>
-    <td><%= check_box_tag "batter_ids[]", catcher.id %></td>
+    <td> <%= c.name %> </td>
+    <td> <%= c.team.name %> </td>
+    <td> <%= c.position %> </td>
+    <td> <%= c.display_fd_salary %> </td>
+    <td> <%= c.fd_season_ppg %> </td>
+    <td> <%= c.ytd_fd_pts_per_1000_dollars %> </td>
+    <td> <%= c.zips_fd_pts_per_game_park_neutral %> </td>
+    <td> <%= c.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= c.zips_fd_pts_per_game_park_adj %> </td>
+    <td> <%= c.adj_fd_ppg %> </td>
+    <td> <%= c.adj_fd_pts_per_1000_dollars %> </td>
+    <td> <%= c.pitcher.name unless c.pitcher.blank? %> </td>
+    <td><%= check_box_tag "batter_ids[]", c.id %></td>
   </tr>
 <% end %>
 </table>
@@ -81,8 +87,10 @@
   <th> Position </th>
   <th> FD Salary </th>
   <th> FD Season Pts/Game </th>
-  <th> Exp ZIPS Pts/Game </th>
-  <th> Pts/1000$ </th>
+  <th> YTD FD Pts/$1000 </th>
+  <th> Exp ZIPS Pts/Game (pn) </th>
+  <th> ZIPS Pts/1000$ (pn) </th>
+  <th> Exp ZIPS Pts/Game (pf) </th>
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
@@ -97,8 +105,10 @@
     <td> <%= fb.position %> </td>
     <td> <%= fb.display_fd_salary %> </td>
     <td> <%= fb.fd_season_ppg %> </td>
-    <td> <%= sprintf('%.2f', fb.fd_pts_per_game) %> </td>
-    <td> <%= fb.fd_pts_per_1000_dollars %> </td>
+    <td> <%= fb.ytd_fd_pts_per_1000_dollars %> </td>
+    <td> <%= fb.zips_fd_pts_per_game_park_neutral %> </td>
+    <td> <%= fb.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= fb.zips_fd_pts_per_game_park_adj %> </td>
     <td> <%= fb.adj_fd_ppg %> </td>
     <td> <%= fb.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= fb.pitcher.name unless fb.pitcher.blank? %> </td>
@@ -117,8 +127,10 @@
   <th> Position </th>
   <th> FD Salary </th>
   <th> FD Season Pts/Game </th>
-  <th> Exp ZIPS Pts/Game </th>
-  <th> Pts/1000$ </th>
+  <th> YTD FD Pts/$1000 </th>
+  <th> Exp ZIPS Pts/Game (pn) </th>
+  <th> ZIPS Pts/1000$ (pn) </th>
+  <th> Exp ZIPS Pts/Game (pf) </th>
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
@@ -133,8 +145,10 @@
     <td> <%= sb.position %> </td>
     <td> <%= sb.display_fd_salary %> </td>
     <td> <%= sb.fd_season_ppg %> </td>
-    <td> <%= sprintf('%.2f', sb.fd_pts_per_game) %> </td>
-    <td> <%= sb.fd_pts_per_1000_dollars %> </td>
+    <td> <%= sb.ytd_fd_pts_per_1000_dollars %> </td>
+    <td> <%= sb.zips_fd_pts_per_game_park_neutral %> </td>
+    <td> <%= sb.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= sb.zips_fd_pts_per_game_park_adj %> </td>
     <td> <%= sb.adj_fd_ppg %> </td>
     <td> <%= sb.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= sb.pitcher.name unless sb.pitcher.blank? %> </td>
@@ -153,8 +167,10 @@
   <th> Position </th>
   <th> FD Salary </th>
   <th> FD Season Pts/Game </th>
-  <th> Exp ZIPS Pts/Game </th>
-  <th> Pts/1000$ </th>
+  <th> YTD FD Pts/$1000 </th>
+  <th> Exp ZIPS Pts/Game (pn) </th>
+  <th> ZIPS Pts/1000$ (pn) </th>
+  <th> Exp ZIPS Pts/Game (pf) </th>
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
@@ -169,8 +185,10 @@
     <td> <%= tb.position %> </td>
     <td> <%= tb.display_fd_salary %> </td>
     <td> <%= tb.fd_season_ppg %> </td>
-    <td> <%= sprintf('%.2f', tb.fd_pts_per_game) %> </td>
-    <td> <%= tb.fd_pts_per_1000_dollars %> </td>
+    <td> <%= tb.ytd_fd_pts_per_1000_dollars %> </td>
+    <td> <%= tb.zips_fd_pts_per_game_park_neutral %> </td>
+    <td> <%= tb.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= tb.zips_fd_pts_per_game_park_adj %> </td>
     <td> <%= tb.adj_fd_ppg %> </td>
     <td> <%= tb.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= tb.pitcher.name unless tb.pitcher.blank? %> </td>
@@ -189,8 +207,10 @@
   <th> Position </th>
   <th> FD Salary </th>
   <th> FD Season Pts/Game </th>
-  <th> Exp ZIPS Pts/Game </th>
-  <th> Pts/1000$ </th>
+  <th> YTD FD Pts/$1000 </th>
+  <th> Exp ZIPS Pts/Game (pn) </th>
+  <th> ZIPS Pts/1000$ (pn) </th>
+  <th> Exp ZIPS Pts/Game (pf) </th>
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
@@ -205,8 +225,10 @@
     <td> <%= ss.position %> </td>
     <td> <%= ss.display_fd_salary %> </td>
     <td> <%= ss.fd_season_ppg %> </td>
-    <td> <%= sprintf('%.2f', ss.fd_pts_per_game) %> </td>
-    <td> <%= ss.fd_pts_per_1000_dollars %> </td>
+    <td> <%= ss.ytd_fd_pts_per_1000_dollars %> </td>
+    <td> <%= ss.zips_fd_pts_per_game_park_neutral %> </td>
+    <td> <%= ss.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= ss.zips_fd_pts_per_game_park_adj %> </td>
     <td> <%= ss.adj_fd_ppg %> </td>
     <td> <%= ss.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= ss.pitcher.name unless ss.pitcher.blank? %> </td>
@@ -225,8 +247,10 @@
   <th> Position </th>
   <th> FD Salary </th>
   <th> FD Season Pts/Game </th>
-  <th> Exp ZIPS Pts/Game </th>
-  <th> Pts/1000$ </th>
+  <th> YTD FD Pts/$1000 </th>
+  <th> Exp ZIPS Pts/Game (pn) </th>
+  <th> ZIPS Pts/1000$ (pn) </th>
+  <th> Exp ZIPS Pts/Game (pf) </th>
   <th> Exp ZIPS Adj Pts/Game </th>
   <th> Adj Pts/1000$ </th>
   <th> Opponent </th>
@@ -241,8 +265,10 @@
     <td> <%= of.position %> </td>
     <td> <%= of.display_fd_salary %> </td>
     <td> <%= of.fd_season_ppg %> </td>
-    <td> <%= sprintf('%.2f', of.fd_pts_per_game) %> </td>
-    <td> <%= of.fd_pts_per_1000_dollars %> </td>
+    <td> <%= of.ytd_fd_pts_per_1000_dollars %> </td>
+    <td> <%= of.zips_fd_pts_per_game_park_neutral %> </td>
+    <td> <%= of.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= of.zips_fd_pts_per_game_park_adj %> </td>
     <td> <%= of.adj_fd_ppg %> </td>
     <td> <%= of.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= of.pitcher.name unless of.pitcher.blank? %> </td>

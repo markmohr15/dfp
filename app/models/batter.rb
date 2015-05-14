@@ -142,23 +142,31 @@ class Batter < ActiveRecord::Base
     end
   end
 
-  def fd_pts_per_game
+  def zips_fd_pts_per_game_park_neutral
     season_pts = self.hits * 1 + self.doubles * 1 + self.triples * 2 + self.homers * 3 + self.rbis * 1 +
      self.runs * 1 + self.walks * 1 + self.sb * 2 + self.hbps * 1 + (ab - hits) * -0.25
     ppg = season_pts / pa * self.papg
     if self.team.park_factor > 1
-      ppg = ppg / (self.team.park_factor + 1) * self.team.park_factor
+      ppg = ppg / ((self.team.park_factor - 1) / 2 + 1)
     else
-      ppg = ppg / self.team.park_factor
+      ppg = ppg / (1 - (1 - self.team.park_factor) / 2)
     end
-    ppg * self.park_factor
+    ppg.round(2)
   end
 
-  def fd_pts_per_1000_dollars
+  def zips_fd_pts_per_game_park_adj
+    (self.zips_fd_pts_per_game_park_neutral * self.park_factor).round(2)
+  end
+
+  def ytd_fd_pts_per_1000_dollars
+    (self.fd_season_ppg / self.fd_salary * 1000).round(2)
+  end
+
+  def zips_fd_pts_per_1000_dollars_park_neutral
     if self.fd_salary.blank?
       "N/A"
     else
-      (self.fd_pts_per_game / self.fd_salary * 1000).round(2)
+      (self.zips_fd_pts_per_game_park_neutral / self.fd_salary * 1000).round(2)
     end
   end
 
@@ -174,7 +182,7 @@ class Batter < ActiveRecord::Base
     if self.pitcher.blank?
       self.adj_fd_ppg = 0
     else
-      self.adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 19.072 * self.park_factor * self.fd_pts_per_game).round(2)
+      self.adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 19.072 * self.park_factor * self.zips_fd_pts_per_game_park_adj).round(2)
     end
     if self.team.home?
       self.adj_fd_ppg *= 1.0337

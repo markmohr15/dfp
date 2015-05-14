@@ -63,7 +63,16 @@ class Pitcher < ActiveRecord::Base
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Pitcher.create(name: pitcher, team_id: Team.find_by(name: team).id, wins: data[3][2][0], games: data[3][5][0], gs: data[3][6][0], ip: data[3][12][0], hits: data[3][14][0], er: data[3][16][0], homers: data[3][17][0], so: data[3][23][0], whip: data[6][10][0] )
+    Pitcher.create(name: pitcher, team_id: Team.find_by(name: team).id, wins: data[3][2][0], games: data[3][5][0], gs: data[3][6][0], ip: data[3][12][0], hits: data[3][14][0], er: data[3][16][0], homers: data[3][17][0], so: data[3][23][0], whip: data[3][10][0] )
+  end
+
+  def self.get_zips_one_pitcher_hidden url, pitcher, team, row #indiv import with no zips on page
+    agent = Mechanize.new
+    stuff = agent.get(url).search(".grid_projections_hide")
+    data = stuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    Pitcher.create(name: pitcher, team_id: Team.find_by(name: team).id, wins: data[row][2][0], games: data[row][5][0], gs: data[row][6][0], ip: data[row][12][0], hits: data[row][14][0], er: data[row][16][0], homers: data[row][17][0], so: data[row][23][0], whip: data[row][10][0] )
   end
 
   def display_fd_salary
@@ -77,6 +86,10 @@ class Pitcher < ActiveRecord::Base
   def fd_pts_per_game
     season_pts = self.wins * 4 + self.er * -1 + self.so * 1 + self.ip * 1
     season_pts / self.games.to_f
+  end
+
+  def ytd_fd_pts_per_1000_dollars
+    (self.fd_season_ppg / self.fd_salary * 1000).round(2)
   end
 
   def fd_pts_per_1000_dollars
@@ -130,9 +143,9 @@ class Pitcher < ActiveRecord::Base
       baserunners_counter + 0.063 * ip_counter * 2 + ip_counter * 3.0 * -0.25) / ip_counter * (9 - starter_innings)
     total_pts = starter_pts + reliever_pts
     if self.team.park_factor > 1
-      total_pts = total_pts / (self.team.park_factor + 1) * self.team.park_factor
+      total_pts = total_pts / ((self.team.park_factor - 1) / 2 + 1)
     else
-      total_pts = total_pts / self.team.park_factor
+      total_pts = total_pts / (1 - (1 - self.team.park_factor) / 2)
     end
     total_pts * self.park_factor
   end
