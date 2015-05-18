@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150516194246) do
+ActiveRecord::Schema.define(version: 20150518153015) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,25 +37,25 @@ ActiveRecord::Schema.define(version: 20150516194246) do
   create_table "batters", force: :cascade do |t|
     t.string   "name"
     t.text     "position"
-    t.integer  "pa"
-    t.integer  "ab"
-    t.integer  "hits"
-    t.integer  "doubles"
-    t.integer  "triples"
-    t.integer  "homers"
-    t.integer  "runs"
-    t.integer  "rbis"
-    t.integer  "walks"
-    t.integer  "hbps"
-    t.integer  "sb"
-    t.integer  "cs"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.integer  "zips_pa"
+    t.integer  "zips_ab"
+    t.integer  "zips_hits"
+    t.integer  "zips_doubles"
+    t.integer  "zips_triples"
+    t.integer  "zips_homers"
+    t.integer  "zips_runs"
+    t.integer  "zips_rbis"
+    t.integer  "zips_walks"
+    t.integer  "zips_hbps"
+    t.integer  "zips_sb"
+    t.integer  "zips_cs"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
     t.integer  "fd_salary"
     t.float    "fd_season_ppg"
     t.integer  "pitcher_id"
     t.integer  "team_id"
-    t.float    "adj_fd_ppg"
+    t.float    "zips_adj_fd_ppg"
     t.integer  "lineup_spot"
     t.boolean  "selected"
   end
@@ -93,20 +93,20 @@ ActiveRecord::Schema.define(version: 20150516194246) do
 
   create_table "pitchers", force: :cascade do |t|
     t.string   "name"
-    t.integer  "wins"
-    t.integer  "games"
-    t.integer  "gs"
-    t.integer  "ip"
-    t.integer  "er"
-    t.integer  "so"
-    t.float    "whip"
+    t.integer  "zips_wins"
+    t.integer  "zips_ganmes"
+    t.integer  "zips_gs"
+    t.integer  "zips_ip"
+    t.integer  "zips_er"
+    t.integer  "zips_so"
+    t.float    "zips_whip"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
     t.integer  "fd_salary"
     t.float    "fd_season_ppg"
     t.boolean  "reliever",      default: false
-    t.integer  "homers"
-    t.integer  "hits"
+    t.integer  "zips_homers"
+    t.integer  "zips_hits"
     t.integer  "team_id"
     t.boolean  "selected"
   end

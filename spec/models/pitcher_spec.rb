@@ -4,20 +4,20 @@
 #
 #  id            :integer          not null, primary key
 #  name          :string
-#  wins          :integer
-#  games         :integer
-#  gs            :integer
-#  ip            :integer
-#  er            :integer
-#  so            :integer
-#  whip          :float
+#  zips_wins     :integer
+#  zips_ganmes   :integer
+#  zips_gs       :integer
+#  zips_ip       :integer
+#  zips_er       :integer
+#  zips_so       :integer
+#  zips_whip     :float
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  fd_salary     :integer
 #  fd_season_ppg :float
 #  reliever      :boolean          default("false")
-#  homers        :integer
-#  hits          :integer
+#  zips_homers   :integer
+#  zips_hits     :integer
 #  team_id       :integer
 #  selected      :boolean
 #
