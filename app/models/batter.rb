@@ -70,23 +70,23 @@ class Batter < ActiveRecord::Base
   def papg #plate app/game
     case self.lineup_spot
     when 1
-      avg = 5
+      avg = 4.649
     when 2
-      avg = 5
+      avg = 4.538
     when 3
-      avg = 4
+      avg = 4.427
     when 4
-      avg = 4
+      avg = 4.316
     when 5
-      avg = 4
+      avg = 4.205
     when 6
-      avg = 4
+      avg = 4.094
     when 7
-      avg = 4
+      avg = 3.983
     when 8
-      avg = 4
+      avg = 3.872
     when 9
-      avg = 4
+      avg = 3.761
     else
       avg = 0
     end
@@ -94,6 +94,31 @@ class Batter < ActiveRecord::Base
       avg * 0.981
     else
       avg * 1.019
+    end
+  end
+
+  def nine_inning_papg #plate app/game
+    case self.lineup_spot
+    when 1
+      avg = 4.649
+    when 2
+      avg = 4.538
+    when 3
+      avg = 4.427
+    when 4
+      avg = 4.316
+    when 5
+      avg = 4.205
+    when 6
+      avg = 4.094
+    when 7
+      avg = 3.983
+    when 8
+      avg = 3.872
+    when 9
+      avg = 3.761
+    else
+      avg = 0
     end
   end
 
