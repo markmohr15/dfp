@@ -30,6 +30,9 @@ class Pitcher < ActiveRecord::Base
 
   has_many :batters
   belongs_to :team
+  has_many :matchups_as_visiting_pitcher, class_name: "Matchup", foreign_key: "visiting_pitcher_id"
+  has_many :matchups_as_home_pitcher, class_name: "Matchup", foreign_key: "home_pitcher_id"
+
 
   def park_factor
     game = Matchup.find_by("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id)
@@ -53,7 +56,8 @@ class Pitcher < ActiveRecord::Base
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
     data.each do |x|
-      Pitcher.create(name: x[0].join(","), team_id: (Team.where(name: x[1].join(",")).first_or_create).id, wins: x[2].join(","), games: x[6].join(","), gs: x[5].join(","), ip: x[7].join(","), hits: x[8].join(","), er: x[9].join(","), homers: x[10].join(","), so: x[11].join(","), whip: x[13].join(",") )
+      pitcher = Pitcher.where(name: x[0].join(",")).first_or_initialize
+      pitcher.update_attributes(team_id: (Team.where(name: x[1].join(",")).first_or_create).id, wins: x[2].join(","), games: x[6].join(","), gs: x[5].join(","), ip: x[7].join(","), hits: x[8].join(","), er: x[9].join(","), homers: x[10].join(","), so: x[11].join(","), whip: x[13].join(",") )
     end
   end
 

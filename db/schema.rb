@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150511063331) do
+ActiveRecord::Schema.define(version: 20150516194246) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,8 +82,10 @@ ActiveRecord::Schema.define(version: 20150511063331) do
   create_table "matchups", force: :cascade do |t|
     t.integer  "visitor_id"
     t.integer  "home_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.integer  "visiting_pitcher_id"
+    t.integer  "home_pitcher_id"
   end
 
   add_index "matchups", ["home_id"], name: "index_matchups_on_home_id", using: :btree
@@ -113,8 +115,9 @@ ActiveRecord::Schema.define(version: 20150511063331) do
 
   create_table "teams", force: :cascade do |t|
     t.string   "name"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+    t.float    "fd_park_factor"
     t.float    "park_factor"
   end
 

@@ -28,4 +28,8 @@ class PagesController < ApplicationController
     redirect_to root_path
   end
 
+  def lines
+    @matchups = Matchup.all
+  end
+
 end

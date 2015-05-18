@@ -1,0 +1,40 @@
+<div class="container padding-large-horizontal">
+
+<h1> Matchups </h1>
+
+<table class="table table-responsive table-striped">
+<thead>
+<tr>
+  <th> Teams </th>
+  <th> TL Line </th>
+  <th> TL Off </th>
+  <th> TL Def </th>
+  <th> Ov Line </th>
+  <th> Ov Off </th>
+  <th> Ov Def </th>
+</tr>
+
+<% @matchups.each do |matchup| %>
+ <tr>
+  <td> <%= matchup.visitor.name %> </td>
+  <td> </td>
+  <td> <%= matchup.pf_adj matchup.visitor.true_lineup_offense %> </td>
+  <td> <%= matchup.pf_adj(matchup.visitor.defense(matchup.visiting_pitcher.name)) %> </td>
+  <td> </td>
+  <td> </td>
+  <td> </td>
+</tr>
+<tr>
+<td> <%= matchup.home.name %> </td>
+<td>  <%= (Matchup.decimal_to_moneyline matchup.line).to_s %> </td>
+<td> <%= matchup.pf_adj matchup.home.true_lineup_offense %> </td>
+  <td> <%= matchup.pf_adj(matchup.home.defense(matchup.home_pitcher.name)) %> </td>
+  <td> </td>
+  <td> </td>
+  <td> </td>
+</tr>
+<tr><td colspan="7"></td></tr>
+<% end %>
+
+</div>
+

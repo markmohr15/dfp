@@ -70,23 +70,23 @@ class Batter < ActiveRecord::Base
   def papg #plate app/game
     case self.lineup_spot
     when 1
-      avg = 4.649
+      avg = 5
     when 2
-      avg = 4.538
+      avg = 5
     when 3
-      avg = 4.427
+      avg = 4
     when 4
-      avg = 4.316
+      avg = 4
     when 5
-      avg = 4.205
+      avg = 4
     when 6
-      avg = 4.094
+      avg = 4
     when 7
-      avg = 3.983
+      avg = 4
     when 8
-      avg = 3.872
+      avg = 4
     when 9
-      avg = 3.761
+      avg = 4
     else
       avg = 0
     end
@@ -95,6 +95,18 @@ class Batter < ActiveRecord::Base
     else
       avg * 1.019
     end
+  end
+
+  def obp
+    (self.hits + self.walks + self.hbps) / self.pa.to_f
+  end
+
+  def slg
+    (self.hits + self.doubles + self.triples * 2 + self.homers * 3) / self.ab.to_f
+  end
+
+  def singles
+    self.hits - self.doubles - self.triples - self.homers
   end
 
   def self.ballpark

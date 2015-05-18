@@ -2,11 +2,13 @@
 #
 # Table name: matchups
 #
-#  id         :integer          not null, primary key
-#  visitor_id :integer
-#  home_id    :integer
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id                  :integer          not null, primary key
+#  visitor_id          :integer
+#  home_id             :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  visiting_pitcher_id :integer
+#  home_pitcher_id     :integer
 #
 # Indexes
 #
