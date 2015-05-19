@@ -7,7 +7,7 @@ class PagesController < ApplicationController
     @thirdbasemen = Batter.thirdbasemen_sorted_by_adj_fd_pts_per_1000_dollars
     @shortstops = Batter.shortstops_sorted_by_adj_fd_pts_per_1000_dollars
     @outfielders = Batter.outfielders_sorted_by_adj_fd_pts_per_1000_dollars
-    @pitchers = Pitcher.sorted_by_fd_pts_per_1000_dollars
+    @pitchers = Pitcher.sorted_by_zips_fd_pts_per_1000_dollars
   end
 
   def update

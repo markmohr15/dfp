@@ -29,8 +29,8 @@
     <td> <%= pitcher.display_fd_salary %> </td>
     <td> <%= pitcher.fd_season_ppg %> </td>
     <td> <%= pitcher.ytd_fd_pts_per_1000_dollars %> </td>
-    <td> <%= sprintf('%.2f', pitcher.fd_pts_per_game) %> </td>
-    <td> <%= pitcher.fd_pts_per_1000_dollars %> </td>
+    <td> <%= sprintf('%.2f', pitcher.zips_fd_pts_per_game) %> </td>
+    <td> <%= pitcher.zips_fd_pts_per_1000_dollars %> </td>
     <td> <%= pitcher.opponent %> </td>
     <td><%= check_box_tag "pitcher_ids[]", pitcher.id %></td>
   </tr>
@@ -69,7 +69,7 @@
     <td> <%= c.zips_fd_pts_per_game_park_neutral %> </td>
     <td> <%= c.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
     <td> <%= c.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= c.adj_fd_ppg %> </td>
+    <td> <%= c.zips_adj_fd_ppg %> </td>
     <td> <%= c.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= c.pitcher.name unless c.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", c.id %></td>
@@ -109,7 +109,7 @@
     <td> <%= fb.zips_fd_pts_per_game_park_neutral %> </td>
     <td> <%= fb.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
     <td> <%= fb.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= fb.adj_fd_ppg %> </td>
+    <td> <%= fb.zips_adj_fd_ppg %> </td>
     <td> <%= fb.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= fb.pitcher.name unless fb.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", fb.id %></td>
@@ -149,7 +149,7 @@
     <td> <%= sb.zips_fd_pts_per_game_park_neutral %> </td>
     <td> <%= sb.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
     <td> <%= sb.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= sb.adj_fd_ppg %> </td>
+    <td> <%= sb.zips_adj_fd_ppg %> </td>
     <td> <%= sb.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= sb.pitcher.name unless sb.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", sb.id %></td>
@@ -189,7 +189,7 @@
     <td> <%= tb.zips_fd_pts_per_game_park_neutral %> </td>
     <td> <%= tb.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
     <td> <%= tb.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= tb.adj_fd_ppg %> </td>
+    <td> <%= tb.zips_adj_fd_ppg %> </td>
     <td> <%= tb.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= tb.pitcher.name unless tb.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", tb.id %></td>
@@ -229,7 +229,7 @@
     <td> <%= ss.zips_fd_pts_per_game_park_neutral %> </td>
     <td> <%= ss.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
     <td> <%= ss.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= ss.adj_fd_ppg %> </td>
+    <td> <%= ss.zips_adj_fd_ppg %> </td>
     <td> <%= ss.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= ss.pitcher.name unless ss.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", ss.id %></td>
@@ -269,7 +269,7 @@
     <td> <%= of.zips_fd_pts_per_game_park_neutral %> </td>
     <td> <%= of.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
     <td> <%= of.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= of.adj_fd_ppg %> </td>
+    <td> <%= of.zips_adj_fd_ppg %> </td>
     <td> <%= of.adj_fd_pts_per_1000_dollars %> </td>
     <td> <%= of.pitcher.name unless of.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", of.id %></td>

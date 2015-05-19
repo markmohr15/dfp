@@ -9,6 +9,7 @@
 #  updated_at          :datetime         not null
 #  visiting_pitcher_id :integer
 #  home_pitcher_id     :integer
+#  day                 :date
 #
 # Indexes
 #

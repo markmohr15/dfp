@@ -2,24 +2,35 @@
 #
 # Table name: pitchers
 #
-#  id            :integer          not null, primary key
-#  name          :string
-#  zips_wins     :integer
-#  zips_ganmes   :integer
-#  zips_gs       :integer
-#  zips_ip       :integer
-#  zips_er       :integer
-#  zips_so       :integer
-#  zips_whip     :float
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  fd_salary     :integer
-#  fd_season_ppg :float
-#  reliever      :boolean          default("false")
-#  zips_homers   :integer
-#  zips_hits     :integer
-#  team_id       :integer
-#  selected      :boolean
+#  id             :integer          not null, primary key
+#  name           :string
+#  zips_wins      :integer
+#  zips_games     :integer
+#  zips_gs        :integer
+#  zips_ip        :integer
+#  zips_er        :integer
+#  zips_so        :integer
+#  zips_whip      :float
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  fd_salary      :integer
+#  fd_season_ppg  :float
+#  reliever       :boolean          default("false")
+#  zips_homers    :integer
+#  zips_hits      :integer
+#  team_id        :integer
+#  selected       :boolean
+#  sierra         :float
+#  steamer_wins   :integer
+#  steamer_games  :integer
+#  steamer_gs     :integer
+#  steamer_ip     :integer
+#  steamer_er     :integer
+#  steamer_so     :integer
+#  steamer_whip   :integer
+#  steamer_homers :integer
+#  steamer_hits   :integer
+#  throws         :integer
 #
 # Indexes
 #

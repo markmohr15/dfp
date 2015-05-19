@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150518153015) do
+ActiveRecord::Schema.define(version: 20150519063757) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -49,8 +49,8 @@ ActiveRecord::Schema.define(version: 20150518153015) do
     t.integer  "zips_hbps"
     t.integer  "zips_sb"
     t.integer  "zips_cs"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.integer  "fd_salary"
     t.float    "fd_season_ppg"
     t.integer  "pitcher_id"
@@ -58,6 +58,8 @@ ActiveRecord::Schema.define(version: 20150518153015) do
     t.float    "zips_adj_fd_ppg"
     t.integer  "lineup_spot"
     t.boolean  "selected"
+    t.integer  "rh_overnight_lineup_spot"
+    t.integer  "lh_overnight_lineup_spot"
   end
 
   add_index "batters", ["pitcher_id"], name: "index_batters_on_pitcher_id", using: :btree
@@ -86,6 +88,7 @@ ActiveRecord::Schema.define(version: 20150518153015) do
     t.datetime "updated_at",          null: false
     t.integer  "visiting_pitcher_id"
     t.integer  "home_pitcher_id"
+    t.date     "day"
   end
 
   add_index "matchups", ["home_id"], name: "index_matchups_on_home_id", using: :btree
@@ -94,21 +97,32 @@ ActiveRecord::Schema.define(version: 20150518153015) do
   create_table "pitchers", force: :cascade do |t|
     t.string   "name"
     t.integer  "zips_wins"
-    t.integer  "zips_ganmes"
+    t.integer  "zips_games"
     t.integer  "zips_gs"
     t.integer  "zips_ip"
     t.integer  "zips_er"
     t.integer  "zips_so"
     t.float    "zips_whip"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.integer  "fd_salary"
     t.float    "fd_season_ppg"
-    t.boolean  "reliever",      default: false
+    t.boolean  "reliever",       default: false
     t.integer  "zips_homers"
     t.integer  "zips_hits"
     t.integer  "team_id"
     t.boolean  "selected"
+    t.float    "sierra"
+    t.integer  "steamer_wins"
+    t.integer  "steamer_games"
+    t.integer  "steamer_gs"
+    t.integer  "steamer_ip"
+    t.integer  "steamer_er"
+    t.integer  "steamer_so"
+    t.integer  "steamer_whip"
+    t.integer  "steamer_homers"
+    t.integer  "steamer_hits"
+    t.integer  "throws"
   end
 
   add_index "pitchers", ["team_id"], name: "index_pitchers_on_team_id", using: :btree

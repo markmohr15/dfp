@@ -2,30 +2,32 @@
 #
 # Table name: batters
 #
-#  id            :integer          not null, primary key
-#  name          :string
-#  position      :text
-#  pa            :integer
-#  ab            :integer
-#  hits          :integer
-#  doubles       :integer
-#  triples       :integer
-#  homers        :integer
-#  runs          :integer
-#  rbis          :integer
-#  walks         :integer
-#  hbps          :integer
-#  sb            :integer
-#  cs            :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  fd_salary     :integer
-#  fd_season_ppg :float
-#  pitcher_id    :integer
-#  team_id       :integer
-#  adj_fd_ppg    :float
-#  lineup_spot   :integer
-#  selected      :boolean
+#  id                       :integer          not null, primary key
+#  name                     :string
+#  position                 :text
+#  zips_pa                  :integer
+#  zips_ab                  :integer
+#  zips_hits                :integer
+#  zips_doubles             :integer
+#  zips_triples             :integer
+#  zips_homers              :integer
+#  zips_runs                :integer
+#  zips_rbis                :integer
+#  zips_walks               :integer
+#  zips_hbps                :integer
+#  zips_sb                  :integer
+#  zips_cs                  :integer
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
+#  fd_salary                :integer
+#  fd_season_ppg            :float
+#  pitcher_id               :integer
+#  team_id                  :integer
+#  zips_adj_fd_ppg          :float
+#  lineup_spot              :integer
+#  selected                 :boolean
+#  rh_overnight_lineup_spot :integer
+#  lh_overnight_lineup_spot :integer
 #
 # Indexes
 #
@@ -38,7 +40,7 @@ class Batter < ActiveRecord::Base
   belongs_to :pitcher
   belongs_to :team
 
-  before_save :set_adj_fd_ppg, :remove_from_lineup
+  before_save :set_zips_adj_fd_ppg#, :remove_from_lineup
 
   def display_fd_salary
     if self.fd_salary.blank?
@@ -122,16 +124,8 @@ class Batter < ActiveRecord::Base
     end
   end
 
-  def obp
-    (self.hits + self.walks + self.hbps) / self.pa.to_f
-  end
-
-  def slg
-    (self.hits + self.doubles + self.triples * 2 + self.homers * 3) / self.ab.to_f
-  end
-
-  def singles
-    self.hits - self.doubles - self.triples - self.homers
+  def zips_singles
+    self.zips_hits - self.zips_doubles - self.zips_triples - self.zips_homers
   end
 
   def self.ballpark
@@ -180,9 +174,9 @@ class Batter < ActiveRecord::Base
   end
 
   def zips_fd_pts_per_game_park_neutral
-    season_pts = self.hits * 1 + self.doubles * 1 + self.triples * 2 + self.homers * 3 + self.rbis * 1 +
-     self.runs * 1 + self.walks * 1 + self.sb * 2 + self.hbps * 1 + (ab - hits) * -0.25
-    ppg = season_pts / pa * self.papg
+    season_pts = self.zips_hits * 1 + self.zips_doubles * 1 + self.zips_triples * 2 + self.zips_homers * 3 + self.zips_rbis * 1 +
+     self.zips_runs * 1 + self.zips_walks * 1 + self.zips_sb * 2 + self.zips_hbps * 1 + (self.zips_ab - self.zips_hits) * -0.25
+    ppg = season_pts / self.zips_pa * self.papg
     if self.team.park_factor > 1
       ppg = ppg / ((self.team.park_factor - 1) / 2 + 1)
     else
@@ -211,32 +205,31 @@ class Batter < ActiveRecord::Base
     if self.fd_salary.blank? || self.pitcher.blank?
       "N/A"
     else
-      sprintf('%.2f', self.adj_fd_ppg.to_f / self.fd_salary * 1000)
+      sprintf('%.2f', self.zips_adj_fd_ppg.to_f / self.fd_salary * 1000)
     end
   end
 
-  def set_adj_fd_ppg
+  def set_zips_adj_fd_ppg
     if self.pitcher.blank?
-      self.adj_fd_ppg = 0
+      self.zips_adj_fd_ppg = 0
     else
-      self.adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 19.072 * self.park_factor * self.zips_fd_pts_per_game_park_adj).round(2)
+      self.zips_adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 19.072 * self.park_factor * self.zips_fd_pts_per_game_park_adj).round(2)
     end
     if self.team.home?
-      self.adj_fd_ppg *= 1.0337
+      self.zips_adj_fd_ppg *= 1.0337
     else
-      self.adj_fd_ppg *= 0.9663
+      self.zips_adj_fd_ppg *= 0.9663
     end
-    self.adj_fd_ppg = self.adj_fd_ppg.round(2)
+    self.zips_adj_fd_ppg = self.zips_adj_fd_ppg.round(2)
   end
 
   def self.get_lineups
     agent = Mechanize.new
-    stuff = agent.get("http://www.baseballpress.com/lineups").search('.players')
-    games = agent.get("http://www.baseballpress.com/lineups").search('.team-name')
+    stuff = agent.get("http://www.baseballpress.com/lineups/2015-05-19").search('.players')
+    games = agent.get("http://www.baseballpress.com/lineups/2015-05-19").search('.team-name')
     teams = games.map { |node| node.children.text }
-    Matchup.destroy_all
     (teams.length / 2).times do
-      Matchup.create(home_id: Team.find_by(name: teams.pop).id, visitor_id: Team.find_by(name: teams.pop).id)
+      Matchup.where(home_id: Team.find_by(name: teams.pop).id, visitor_id: Team.find_by(name: teams.pop).id, day: Date.today).first_or_create
     end
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
@@ -294,7 +287,7 @@ class Batter < ActiveRecord::Base
     end.compact
     data.each do |x|
       batter = Batter.where(name: x[0].join(",")).first_or_initialize
-      batter.update_attributes(team_id: (Team.where(name: x[1].join(",")).first_or_create).id, pa: x[3].join(","), ab: x[4].join(","), hits: x[5].join(","), doubles: x[6].join(","), triples: x[7].join(","), homers: x[8].join(","), runs: x[9].join(","), rbis: x[10].join(","), walks: x[11].join(","), hbps: x[13].join(","), sb: x[14].join(","), cs: x[15].join(",") )
+      batter.update_attributes(team_id: (Team.where(name: x[1].join(",")).first_or_create).id, zips_pa: x[3].join(","), zips_ab: x[4].join(","), zips_hits: x[5].join(","), zips_doubles: x[6].join(","), zips_triples: x[7].join(","), zips_homers: x[8].join(","), zips_runs: x[9].join(","), zips_rbis: x[10].join(","), zips_walks: x[11].join(","), zips_hbps: x[13].join(","), zips_sb: x[14].join(","), zips_cs: x[15].join(",") )
     end
   end
 
@@ -304,7 +297,7 @@ class Batter < ActiveRecord::Base
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, pa: data[row][4][0], ab: data[row][3][0], hits: data[row][5][0], doubles: data[row][7][0], triples: data[row][8][0], homers: data[row][9][0], runs: data[row][10][0], rbis: data[row][11][0], walks: data[row][12][0], hbps: data[row][15][0], sb: data[row][19][0], cs: data[row][20][0] )
+    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, zips_pa: data[row][4][0], zips_ab: data[row][3][0], zips_hits: data[row][5][0], zips_doubles: data[row][7][0], zips_triples: data[row][8][0], zips_homers: data[row][9][0], zips_runs: data[row][10][0], zips_rbis: data[row][11][0], zips_walks: data[row][12][0], zips_hbps: data[row][15][0], zips_sb: data[row][19][0], zips_cs: data[row][20][0] )
   end
 
   def self.get_zips_one_batter_data url, batter, team, position #indiv import with zips on page
@@ -313,20 +306,20 @@ class Batter < ActiveRecord::Base
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, pa: data[3][4][0], ab: data[3][3][0], hits: data[3][5][0], doubles: data[3][7][0], triples: data[3][8][0], homers: data[3][9][0], runs: data[3][10][0], rbis: data[3][11][0], walks: data[3][12][0], hbps: data[3][15][0], sb: data[3][19][0], cs: data[3][20][0] )
+    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, zips_pa: data[3][4][0], zips_ab: data[3][3][0], zips_hits: data[3][5][0], zips_doubles: data[3][7][0], zips_triples: data[3][8][0], zips_homers: data[3][9][0], zips_runs: data[3][10][0], zips_rbis: data[3][11][0], zips_walks: data[3][12][0], zips_hbps: data[3][15][0], zips_sb: data[3][19][0], zips_cs: data[3][20][0] )
   end
 
-  def self.get_season_stats url, batter, team, position, row #no zips
+  def self.use_season_stats_for_zips url, batter, team, position, row
     agent = Mechanize.new
     stuff = agent.get(url).search(".rgRow")
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, pa: data[row][4][0], ab: data[row][3][0], hits: data[row][5][0], doubles: data[row][7][0], triples: data[row][8][0], homers: data[row][9][0], runs: data[row][10][0], rbis: data[row][11][0], walks: data[row][12][0], hbps: data[row][15][0], sb: data[row][19][0], cs: data[row][20][0] )
+    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, zips_pa: data[row][4][0], zips_ab: data[row][3][0], zips_hits: data[row][5][0], zips_doubles: data[row][7][0], zips_triples: data[row][8][0], zips_homers: data[row][9][0], zips_runs: data[row][10][0], zips_rbis: data[row][11][0], zips_walks: data[row][12][0], zips_hbps: data[row][15][0], zips_sb: data[row][19][0], zips_cs: data[row][20][0] )
   end
 
   def get_pitcher_id
-    game = Matchup.find_by("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id)
+    game = Matchup.find_by("visitor_id in (?) or home_id in (?) and day = ?", self.team_id, self.team_id, Date.today)
     return if game.nil?
     if game.visitor_id == self.team_id
       opp_team_id = game.home_id
@@ -355,47 +348,47 @@ class Batter < ActiveRecord::Base
     catchers.each do |c|
       roster << c.name
       team_array << c.team.name
-      pts_counter += c.adj_fd_ppg
+      pts_counter += c.zips_adj_fd_ppg
       salary_counter += c.fd_salary
       firsts.each do |f|
         roster << f.name
         team_array << f.team.name
-        pts_counter += f.adj_fd_ppg
+        pts_counter += f.zips_adj_fd_ppg
         salary_counter += f.fd_salary
         seconds.each do |s|
           roster << s.name
           team_array << s.team.name
-          pts_counter += s.adj_fd_ppg
+          pts_counter += s.zips_adj_fd_ppg
           salary_counter += s.fd_salary
           thirds.each do |t|
             roster << t.name
             team_array << t.team.name
-            pts_counter += t.adj_fd_ppg
+            pts_counter += t.zips_adj_fd_ppg
             salary_counter += t.fd_salary
             shorts.each do |ss|
               roster << ss.name
               team_array << ss.team.name
-              pts_counter += ss.adj_fd_ppg
+              pts_counter += ss.zips_adj_fd_ppg
               salary_counter += ss.fd_salary
               ofs.each do |ofa|
                 roster << ofa.name
                 team_array << ofa.team.name
-                pts_counter += ofa.adj_fd_ppg
+                pts_counter += ofa.zips_adj_fd_ppg
                 salary_counter += ofa.fd_salary
                 ofs.each do |ofb|
                   roster << ofb.name
                   team_array << ofb.team.name
-                  pts_counter += ofb.adj_fd_ppg
+                  pts_counter += ofb.zips_adj_fd_ppg
                   salary_counter += ofb.fd_salary
                   ofs.each do |ofc|
                     roster << ofc.name
                     team_array << ofc.team.name
-                    pts_counter += ofc.adj_fd_ppg
+                    pts_counter += ofc.zips_adj_fd_ppg
                     salary_counter += ofc.fd_salary
                     pitchers.each do |p|
                       roster << p.name
                       team_array << p.team.name
-                      pts_counter += p.fd_pts_per_game
+                      pts_counter += p.zips_fd_pts_per_game
                       salary_counter += p.fd_salary
                       freq = team_array.inject(Hash.new(0)) { |h,v| h[v] += 1; h }
                       modeteam = team_array.max_by { |v| freq[v] }
@@ -406,47 +399,47 @@ class Batter < ActiveRecord::Base
                       end
                       roster.pop
                       team_array.pop
-                      pts_counter -= p.fd_pts_per_game
+                      pts_counter -= p.zips_fd_pts_per_game
                       salary_counter -= p.fd_salary
                     end
                     roster.pop
                     team_array.pop
-                    pts_counter -= ofc.adj_fd_ppg
+                    pts_counter -= ofc.zips_adj_fd_ppg
                     salary_counter -= ofc.fd_salary
                   end
                   roster.pop
                   team_array.pop
-                  pts_counter -= ofb.adj_fd_ppg
+                  pts_counter -= ofb.zips_adj_fd_ppg
                   salary_counter -= ofb.fd_salary
                 end
                 roster.pop
                 team_array.pop
-                pts_counter -= ofa.adj_fd_ppg
+                pts_counter -= ofa.zips_adj_fd_ppg
                 salary_counter -= ofa.fd_salary
               end
               roster.pop
               team_array.pop
-              pts_counter -= ss.adj_fd_ppg
+              pts_counter -= ss.zips_adj_fd_ppg
               salary_counter -= ss.fd_salary
             end
             roster.pop
             team_array.pop
-            pts_counter -= t.adj_fd_ppg
+            pts_counter -= t.zips_adj_fd_ppg
             salary_counter -= t.fd_salary
           end
           roster.pop
           team_array.pop
-          pts_counter -= s.adj_fd_ppg
+          pts_counter -= s.zips_adj_fd_ppg
           salary_counter -= s.fd_salary
         end
         roster.pop
         team_array.pop
-        pts_counter -= f.adj_fd_ppg
+        pts_counter -= f.zips_adj_fd_ppg
         salary_counter -= f.fd_salary
       end
       roster.pop
       team_array.pop
-      pts_counter -= c.adj_fd_ppg
+      pts_counter -= c.zips_adj_fd_ppg
       salary_counter -= c.fd_salary
     end
     team + " " + high_score.round(2).to_s + " $" + high_salary.to_s

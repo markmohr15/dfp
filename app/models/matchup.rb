@@ -9,6 +9,7 @@
 #  updated_at          :datetime         not null
 #  visiting_pitcher_id :integer
 #  home_pitcher_id     :integer
+#  day                 :date
 #
 # Indexes
 #
@@ -23,11 +24,11 @@ class Matchup < ActiveRecord::Base
   belongs_to :visiting_pitcher, class_name: "Pitcher"
   belongs_to :home_pitcher, class_name: "Pitcher"
 
-  def line
-    visitor_off = self.pf_adj self.visitor.true_lineup_offense
-    visitor_def = self.pf_adj(self.visitor.defense(self.visiting_pitcher.name))
-    home_off = self.pf_adj self.home.true_lineup_offense
-    home_def = self.pf_adj(self.home.defense(self.home_pitcher.name))
+  def zips_tl_line
+    visitor_off = self.pf_adj self.visitor.zips_true_lineup_offense
+    visitor_def = self.pf_adj(self.visitor.zips_defense(self.visiting_pitcher.name))
+    home_off = self.pf_adj self.home.zips_true_lineup_offense
+    home_def = self.pf_adj(self.home.zips_defense(self.home_pitcher.name))
     visitor_exp = (visitor_off + visitor_def)**0.287
     home_exp = (home_off + home_def)**0.287
     visitor_pp = visitor_off**visitor_exp / (visitor_off**visitor_exp + visitor_def**visitor_exp)
@@ -37,6 +38,22 @@ class Matchup < ActiveRecord::Base
     visitor_hfa = visitor_log5 - 0.035
     home_hfa = home_log5 + 0.035
     home_hfa
+  end
+
+  def own_line vis_offense, vis_defense, home_offense, home_defense
+    visitor_off = self.pf_adj vis_offense
+    visitor_def = self.pf_adj vis_defense
+    home_off = self.pf_adj home_offense
+    home_def = self.pf_adj home_defense
+    visitor_exp = (visitor_off + visitor_def)**0.287
+    home_exp = (home_off + home_def)**0.287
+    visitor_pp = visitor_off**visitor_exp / (visitor_off**visitor_exp + visitor_def**visitor_exp)
+    home_pp = home_off**home_exp / (home_off**home_exp + home_def**home_exp)
+    visitor_log5 = (visitor_pp - home_pp * visitor_pp) / (visitor_pp + home_pp - 2 * visitor_pp * home_pp)
+    home_log5 = (home_pp - visitor_pp * home_pp) / (home_pp + visitor_pp - 2 * home_pp * visitor_pp)
+    visitor_hfa = visitor_log5 - 0.035
+    home_hfa = home_log5 + 0.035
+    Matchup.decimal_to_moneyline home_hfa
   end
 
   def pf_adj n

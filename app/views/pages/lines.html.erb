@@ -6,29 +6,33 @@
 <thead>
 <tr>
   <th> Teams </th>
-  <th> TL Line </th>
-  <th> TL Off </th>
-  <th> TL Def </th>
+  <th> ZiPS TL Line </th>
+  <th> ZiPS TL Off </th>
+  <th> ZiPS TL Def </th>
+  <th> SIERRA </th>
   <th> Ov Line </th>
   <th> Ov Off </th>
   <th> Ov Def </th>
+
 </tr>
 
 <% @matchups.each do |matchup| %>
  <tr>
-  <td> <%= matchup.visitor.name %> </td>
+  <td> <%= matchup.visitor.name + " (" + matchup.visiting_pitcher.name + ")" %> </td>
   <td> </td>
-  <td> <%= matchup.pf_adj matchup.visitor.true_lineup_offense %> </td>
-  <td> <%= matchup.pf_adj(matchup.visitor.defense(matchup.visiting_pitcher.name)) %> </td>
+  <td> <%= matchup.pf_adj matchup.visitor.zips_true_lineup_offense %> </td>
+  <td> <%= matchup.pf_adj(matchup.visitor.zips_defense(matchup.visiting_pitcher.name)) %> </td>
+  <td> <%= matchup.visiting_pitcher.sierra %> </td>
   <td> </td>
   <td> </td>
   <td> </td>
 </tr>
 <tr>
-<td> <%= matchup.home.name %> </td>
-<td>  <%= (Matchup.decimal_to_moneyline matchup.line).to_s %> </td>
-<td> <%= matchup.pf_adj matchup.home.true_lineup_offense %> </td>
-  <td> <%= matchup.pf_adj(matchup.home.defense(matchup.home_pitcher.name)) %> </td>
+<td> <%= matchup.home.name + " (" + matchup.home_pitcher.name + ")" %> </td>
+<td>  <%= (Matchup.decimal_to_moneyline matchup.zips_tl_line).to_s %> </td>
+<td> <%= matchup.pf_adj matchup.home.zips_true_lineup_offense %> </td>
+  <td> <%= matchup.pf_adj(matchup.home.zips_defense(matchup.home_pitcher.name)) %> </td>
+  <td> <%= matchup.home_pitcher.sierra %> </td>
   <td> </td>
   <td> </td>
   <td> </td>
