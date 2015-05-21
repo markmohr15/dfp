@@ -223,10 +223,25 @@ class Batter < ActiveRecord::Base
     self.zips_adj_fd_ppg = self.zips_adj_fd_ppg.round(2)
   end
 
+  def self.get_games date   #format - 2015-05-20
+    agent = Mechanize.new
+    games = agent.get("http://www.baseballpress.com/lineups/" + date).search('.team-data')
+    data = games.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    (data.length / 2).times do
+      team = data.pop
+      home_team = team[1][0].split(/\r?\n/).first
+      team2 = data.pop
+      away_team = team2[1][0].split(/\r?\n/).first
+      Matchup.where(home_id: Team.find_by(name: home_team).id, visitor_id: Team.find_by(name: away_team).id, day: date).first_or_create
+    end
+  end
+
   def self.get_lineups
     agent = Mechanize.new
-    stuff = agent.get("http://www.baseballpress.com/lineups/2015-05-19").search('.players')
-    games = agent.get("http://www.baseballpress.com/lineups/2015-05-19").search('.team-name')
+    stuff = agent.get("http://www.baseballpress.com/lineups").search('.players')
+    games = agent.get("http://www.baseballpress.com/lineups").search('.team-name')
     teams = games.map { |node| node.children.text }
     (teams.length / 2).times do
       Matchup.where(home_id: Team.find_by(name: teams.pop).id, visitor_id: Team.find_by(name: teams.pop).id, day: Date.today).first_or_create

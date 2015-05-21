@@ -68,4 +68,36 @@ class Matchup < ActiveRecord::Base
     end
   end
 
+  def user_line_visitor_off user
+    user_line = UserLine.find_by(user_id: user.id, matchup_id: self.id)
+    return if user_line.blank?
+    user_line.visitor_off
+  end
+
+  def user_line_visitor_def user
+    user_line = UserLine.find_by(user_id: user.id, matchup_id: self.id)
+    return if user_line.blank?
+    user_line.visitor_def
+  end
+
+  def user_line_home_off user
+    user_line = UserLine.find_by(user_id: user.id, matchup_id: self.id)
+    return if user_line.blank?
+    user_line.home_off
+  end
+
+  def user_line_home_def user
+    user_line = UserLine.find_by(user_id: user.id, matchup_id: self.id)
+    return if user_line.blank?
+    user_line.home_def
+  end
+
+  def my_line user
+    user_line = UserLine.find_by(user_id: user.id, matchup_id: self.id)
+    #binding.pry
+    return if user_line.blank?
+    user_line.line.round
+  end
+
+
 end

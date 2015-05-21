@@ -31,6 +31,8 @@
 #  steamer_homers :integer
 #  steamer_hits   :integer
 #  throws         :integer
+#  fip            :float
+#  xfip           :float
 #
 # Indexes
 #
@@ -57,11 +59,11 @@ class Pitcher < ActiveRecord::Base
     end
   end
 
-  def self.get_sierra pages
+  def self.get_stats pages
     agent = Mechanize.new
     stuff = []
     for i in 1..pages
-      stuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=20&type=c,4,5,11,7,8,13,9,122&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=20&type=c,4,5,11,7,8,13,9,122&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
+      stuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=20&type=c,4,5,11,7,8,13,9,122,45,62&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=20&type=c,4,5,11,7,8,13,9,122,45,62&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
     end
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
@@ -70,9 +72,9 @@ class Pitcher < ActiveRecord::Base
     data.each do |x|
       pitcher = Pitcher.find_by(name: x[1][0])
       if pitcher.nil?
-        not_found << x[1][0] + " " + x[10][0]
+        not_found << x[1][0] + " " + x[10][0] + " " + x[11][0] + " " + x[12][0]
       else
-        pitcher.update_attributes(sierra: x[10][0].to_f)
+        pitcher.update_attributes(sierra: x[10][0].to_f, fip: x[11][0].to_f, xfip: x[12][0].to_f)
       end
     end
     not_found

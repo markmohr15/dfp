@@ -5,6 +5,7 @@ ActiveAdmin.register Matchup do
     column :home
     column :visiting_pitcher
     column :home_pitcher
+    column :day
     actions
   end
 
@@ -14,6 +15,7 @@ ActiveAdmin.register Matchup do
       row :home
       row :visiting_pitcher
       row :home_pitcher
+      row :day
     end
   end
 
@@ -24,10 +26,11 @@ ActiveAdmin.register Matchup do
       f.input :home
       f.input :visiting_pitcher, as: :select, collection: Pitcher.where(team_id: matchup.visitor_id)
       f.input :home_pitcher, as: :select, collection: Pitcher.where(team_id: matchup.home_id)
+      f.input :day
     end
     f.actions
   end
 
-  permit_params :visitor_id, :home_id, :visiting_pitcher_id, :home_pitcher_id
+  permit_params :visitor_id, :home_id, :visiting_pitcher_id, :home_pitcher_id, :day
 
 end

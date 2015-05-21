@@ -2,42 +2,65 @@
 
 <h1> Matchups </h1>
 
-<table class="table table-responsive table-striped">
-<thead>
-<tr>
-  <th> Teams </th>
-  <th> ZiPS TL Line </th>
-  <th> ZiPS TL Off </th>
-  <th> ZiPS TL Def </th>
-  <th> SIERRA </th>
-  <th> Ov Line </th>
-  <th> Ov Off </th>
-  <th> Ov Def </th>
+  <table class="table table-responsive table-striped">
+    <thead>
+    <tr>
+      <th> Teams </th>
+      <th> SIERRA </th>
+      <th> FIP </th>
+      <th> xFIP </th>
+      <th> PN Off </th>
+      <th> PN Def </th>
+      <th> My Line </th>
+      <th> ZiPS TL Line </th>
+      <th> ZiPS TL Off </th>
+      <th> ZiPS TL Def </th>
+      <th> Ov Line </th>
+      <th> Ov Off </th>
+      <th> Ov Def </th>
+    </tr>
+    </thead>
 
-</tr>
+    <%= form_tag user_lines_path, method: :post do %>
 
-<% @matchups.each do |matchup| %>
- <tr>
-  <td> <%= matchup.visitor.name + " (" + matchup.visiting_pitcher.name + ")" %> </td>
-  <td> </td>
-  <td> <%= matchup.pf_adj matchup.visitor.zips_true_lineup_offense %> </td>
-  <td> <%= matchup.pf_adj(matchup.visitor.zips_defense(matchup.visiting_pitcher.name)) %> </td>
-  <td> <%= matchup.visiting_pitcher.sierra %> </td>
-  <td> </td>
-  <td> </td>
-  <td> </td>
-</tr>
-<tr>
-<td> <%= matchup.home.name + " (" + matchup.home_pitcher.name + ")" %> </td>
-<td>  <%= (Matchup.decimal_to_moneyline matchup.zips_tl_line).to_s %> </td>
-<td> <%= matchup.pf_adj matchup.home.zips_true_lineup_offense %> </td>
-  <td> <%= matchup.pf_adj(matchup.home.zips_defense(matchup.home_pitcher.name)) %> </td>
-  <td> <%= matchup.home_pitcher.sierra %> </td>
-  <td> </td>
-  <td> </td>
-  <td> </td>
-</tr>
-<tr><td colspan="7"></td></tr>
+
+    <% @matchups.each do |matchup| %>
+     <tr>
+      <td> <%= matchup.visitor.name + " (" + matchup.visiting_pitcher.name + ")" %> </td>
+      <td> <%= matchup.visiting_pitcher.sierra %> </td>
+      <td> <%= matchup.visiting_pitcher.fip %> </td>
+      <td> <%= matchup.visiting_pitcher.xfip %> </td>
+      <td> <%= text_field_tag "user_line[][visitor_off]", nil, value: matchup.user_line_visitor_off(current_user) %> </td>
+      <td> <%= text_field_tag "user_line[][visitor_def]", nil, value: matchup.user_line_visitor_def(current_user) %> </td>
+      <td></td>
+      <td></td>
+      <td> <%= matchup.pf_adj matchup.visitor.zips_true_lineup_offense %> </td>
+      <td> <%= matchup.pf_adj(matchup.visitor.zips_defense(matchup.visiting_pitcher.name)) %> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+    <td> <%= matchup.home.name + " (" + matchup.home_pitcher.name + ")" %> </td>
+      <td> <%= matchup.home_pitcher.sierra %> </td>
+      <td> <%= matchup.home_pitcher.fip %> </td>
+      <td> <%= matchup.home_pitcher.xfip %> </td>
+           <%= hidden_field_tag "user_line[][matchup_id", matchup.id %>
+      <td> <%= text_field_tag "user_line[][home_off]", nil, value: matchup.user_line_home_off(current_user) %> </td>
+      <td> <%= text_field_tag "user_line[][home_def]", nil, value: matchup.user_line_home_def(current_user) %> </td>
+      <td> <%= matchup.my_line(current_user) %> </td>
+      <td> <%= (Matchup.decimal_to_moneyline matchup.zips_tl_line).to_s %> </td>
+      <td> <%= matchup.pf_adj matchup.home.zips_true_lineup_offense %> </td>
+      <td> <%= matchup.pf_adj(matchup.home.zips_defense(matchup.home_pitcher.name)) %> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr><td colspan="12"></td></tr>
+    <% end %>
+  </table>
+
+  <%= submit_tag "Submit" %>
 <% end %>
 
 </div>

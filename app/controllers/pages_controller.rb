@@ -29,7 +29,7 @@ class PagesController < ApplicationController
   end
 
   def lines
-    @matchups = Matchup.all
+    @matchups = Matchup.where(day: Date.today..Date.today + 2.days)
   end
 
 end

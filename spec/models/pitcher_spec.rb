@@ -31,6 +31,8 @@
 #  steamer_homers :integer
 #  steamer_hits   :integer
 #  throws         :integer
+#  fip            :float
+#  xfip           :float
 #
 # Indexes
 #

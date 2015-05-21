@@ -14,6 +14,15 @@ ActiveAdmin.register Team do
         column :lineup_spot
       end
     end
+
+    panel "Pitchers" do
+      table_for team.pitchers do
+        column "Pitchers" do |pitcher|
+          pitcher.name
+        end
+        column :reliever
+      end
+    end
   end
 
   form do |f|
@@ -27,10 +36,16 @@ ActiveAdmin.register Team do
         c.input :lineup_spot
       end
     end
+    f.inputs do
+      f.has_many :pitchers do |c|
+        c.input :name
+        c.input :reliever
+      end
+    end
     f.actions
   end
 
-  permit_params :name, batters_attributes: [:id, :name, :lineup_spot]
+  permit_params :name, batters_attributes: [:id, :name, :lineup_spot], pitchers_attributes: [:id, :name, :reliever]
 
 
 
