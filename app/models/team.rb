@@ -91,6 +91,7 @@ class Team < ActiveRecord::Base
 
   def zips_defense sp
     starter = Pitcher.find_by(name: sp)
+    return if starter.zips_ip.blank?
     starter_innings = starter.zips_ip / starter.zips_games.to_f
     relievers = Pitcher.where(team_id: self.id, reliever: true)
     earned_runs = starter.zips_er / starter.zips_ip.to_f * starter_innings
@@ -110,6 +111,28 @@ class Team < ActiveRecord::Base
     earned_runs.round(2)
   end
 
+  def steamer_defense sp
+    starter = Pitcher.find_by(name: sp)
+    return if starter.steamer_ip.blank?
+    starter_innings = starter.steamer_ip / starter.steamer_games.to_f
+    relievers = Pitcher.where(team_id: self.id, reliever: true)
+    earned_runs = starter.steamer_er / starter.steamer_ip.to_f * starter_innings
+    er_counter = 0
+    ip_counter = 0
+    relievers.each do |r|
+      er_counter += r.steamer_er
+      ip_counter += r.steamer_ip
+    end
+    earned_runs += er_counter / ip_counter.to_f * (9 - starter_innings)
+    if self.park_factor > 1
+      earned_runs = earned_runs / ((self.park_factor - 1) / 2 + 1)
+    else
+      earned_runs = earned_runs / (1 - (1 - self.park_factor) / 2)
+    end
+    earned_runs += 0.3 #unearned runs
+    earned_runs.round(2)
+  end
+
   def self.base_runs ab, pa, hits, singles, doubles, triples, hr, bb, ibb, hbp, sb, cs, gdp
     tb = singles + doubles * 2 + triples * 3 + hr * 4
     a = hits + bb + hbp - hr - 0.5 * ibb
@@ -117,6 +140,15 @@ class Team < ActiveRecord::Base
     c = ab - hits + cs + gdp
     d = hr
     (a * b) / (b + c) + d
+  end
+
+  def self.check_lineups
+    teams = Team.all
+    teams_array = []
+    teams.each do |team|
+      teams_array << team.name + Batter.where("lineup_spot > ? and team_id = ?", 0, team.id).count.to_s
+    end
+    teams_array
   end
 
 end

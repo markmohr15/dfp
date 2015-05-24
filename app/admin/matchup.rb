@@ -33,4 +33,11 @@ ActiveAdmin.register Matchup do
 
   permit_params :visitor_id, :home_id, :visiting_pitcher_id, :home_pitcher_id, :day
 
+  controller do
+
+    def scoped_collection
+      Matchup.where(day: Date.today..Date.today + 5.days)
+    end
+  end
+
 end

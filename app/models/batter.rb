@@ -40,7 +40,7 @@ class Batter < ActiveRecord::Base
   belongs_to :pitcher
   belongs_to :team
 
-  before_save :set_zips_adj_fd_ppg#, :remove_from_lineup
+  before_save :set_zips_adj_fd_ppg, :remove_from_lineup
 
   def display_fd_salary
     if self.fd_salary.blank?
@@ -234,7 +234,7 @@ class Batter < ActiveRecord::Base
       home_team = team[1][0].split(/\r?\n/).first
       team2 = data.pop
       away_team = team2[1][0].split(/\r?\n/).first
-      Matchup.where(home_id: Team.find_by(name: home_team).id, visitor_id: Team.find_by(name: away_team).id, day: date).first_or_create
+      Matchup.create(home_id: Team.find_by(name: home_team).id, visitor_id: Team.find_by(name: away_team).id, day: date)
     end
   end
 
@@ -321,7 +321,7 @@ class Batter < ActiveRecord::Base
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, zips_pa: data[3][4][0], zips_ab: data[3][3][0], zips_hits: data[3][5][0], zips_doubles: data[3][7][0], zips_triples: data[3][8][0], zips_homers: data[3][9][0], zips_runs: data[3][10][0], zips_rbis: data[3][11][0], zips_walks: data[3][12][0], zips_hbps: data[3][15][0], zips_sb: data[3][19][0], zips_cs: data[3][20][0] )
+    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, zips_pa: data[1][4][0], zips_ab: data[1][3][0], zips_hits: data[1][5][0], zips_doubles: data[1][7][0], zips_triples: data[1][8][0], zips_homers: data[1][9][0], zips_runs: data[1][10][0], zips_rbis: data[1][11][0], zips_walks: data[1][12][0], zips_hbps: data[1][15][0], zips_sb: data[1][19][0], zips_cs: data[1][20][0] )
   end
 
   def self.use_season_stats_for_zips url, batter, team, position, row
