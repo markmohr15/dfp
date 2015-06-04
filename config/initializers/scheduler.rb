@@ -1,7 +1,10 @@
 require 'rufus-scheduler'
 
-#s = Rufus::Scheduler.singleton
+s = Rufus::Scheduler.singleton
 
-#s.every '5m' do
- # Batter.get_lineups
-#end
+s.every '24h' do
+  Team.get_stats
+  Pitcher.get_stats 7
+  Batter.get_games (Date.today + 3.days).strftime("%Y-%m-%d")
+end
+

@@ -27,12 +27,13 @@
 #  steamer_ip     :integer
 #  steamer_er     :integer
 #  steamer_so     :integer
-#  steamer_whip   :integer
 #  steamer_homers :integer
 #  steamer_hits   :integer
 #  throws         :integer
 #  fip            :float
 #  xfip           :float
+#  steamer_whip   :float
+#  era            :float
 #
 # Indexes
 #

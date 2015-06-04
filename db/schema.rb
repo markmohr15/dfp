@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150519195241) do
+ActiveRecord::Schema.define(version: 20150604193444) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,6 +60,58 @@ ActiveRecord::Schema.define(version: 20150519195241) do
     t.boolean  "selected"
     t.integer  "rh_overnight_lineup_spot"
     t.integer  "lh_overnight_lineup_spot"
+    t.integer  "zips_pa_rhp"
+    t.integer  "zips_ab_rhp"
+    t.integer  "zips_hits_rhp"
+    t.integer  "zips_doubles_rhp"
+    t.integer  "zips_triples_rhp"
+    t.integer  "zips_homers_rhp"
+    t.integer  "zips_runs_rhp"
+    t.integer  "zips_rbis_rhp"
+    t.integer  "zips_walks_rhp"
+    t.integer  "zips_hbps_rhp"
+    t.integer  "zips_pa_lhp"
+    t.integer  "zips_ab_lhp"
+    t.integer  "zips_hits_lhp"
+    t.integer  "zips_doubles_lhp"
+    t.integer  "zips_triples_lhp"
+    t.integer  "zips_homers_lhp"
+    t.integer  "zips_runs_lhp"
+    t.integer  "zips_rbis_lhp"
+    t.integer  "zips_walks_lhp"
+    t.integer  "zips_hbps_lhp"
+    t.integer  "pa_rhp"
+    t.integer  "ab_rhp"
+    t.integer  "hits_rhp"
+    t.integer  "doubles_rhp"
+    t.integer  "triples_rhp"
+    t.integer  "homers_rhp"
+    t.integer  "runs_rhp"
+    t.integer  "rbis_rhp"
+    t.integer  "walks_rhp"
+    t.integer  "hbps_rhp"
+    t.integer  "pa_lhp"
+    t.integer  "ab_lhp"
+    t.integer  "hits_lhp"
+    t.integer  "doubles_lhp"
+    t.integer  "triples_lhp"
+    t.integer  "homers_lhp"
+    t.integer  "runs_lhp"
+    t.integer  "rbis_lhp"
+    t.integer  "walks_lhp"
+    t.integer  "hbps_lhp"
+    t.integer  "pa"
+    t.integer  "ab"
+    t.integer  "hits"
+    t.integer  "doubles"
+    t.integer  "triples"
+    t.integer  "homers"
+    t.integer  "runs"
+    t.integer  "rbis"
+    t.integer  "walks"
+    t.integer  "hbps"
+    t.integer  "sb"
+    t.integer  "cs"
   end
 
   add_index "batters", ["pitcher_id"], name: "index_batters_on_pitcher_id", using: :btree
@@ -119,12 +171,13 @@ ActiveRecord::Schema.define(version: 20150519195241) do
     t.integer  "steamer_ip"
     t.integer  "steamer_er"
     t.integer  "steamer_so"
-    t.integer  "steamer_whip"
     t.integer  "steamer_homers"
     t.integer  "steamer_hits"
     t.integer  "throws"
     t.float    "fip"
     t.float    "xfip"
+    t.float    "steamer_whip"
+    t.float    "era"
   end
 
   add_index "pitchers", ["team_id"], name: "index_pitchers_on_team_id", using: :btree
@@ -135,6 +188,9 @@ ActiveRecord::Schema.define(version: 20150519195241) do
     t.datetime "updated_at",     null: false
     t.float    "fd_park_factor"
     t.float    "park_factor"
+    t.float    "base_runs"
+    t.float    "runs_per_nine"
+    t.integer  "games"
   end
 
   create_table "user_lines", force: :cascade do |t|

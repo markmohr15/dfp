@@ -6,6 +6,9 @@
     <thead>
     <tr>
       <th> Teams </th>
+      <th> Runs/9 </th>
+      <th> BsR/game </th>
+      <th> ERA
       <th> SIERA </th>
       <th> FIP </th>
       <th> xFIP </th>
@@ -15,14 +18,13 @@
       <th> ZiPS TL Line </th>
       <th> Steamer TL Line </th>
       <th> ZiPS TL PN Off </th>
-      <th> ZiPS TL PN Def </th>
-      <th> Steamer TL PN Def </th>
+      <th> ZiPS PN Def </th>
+      <th> Steamer PN Def </th>
       <th> ZiPS TL Off </th>
-      <th> ZiPS TL Def </th>
-      <th> Steamer TL Def </th>
-      <th> Ov Line </th>
-      <th> Ov Off </th>
-      <th> Ov Def </th>
+      <th> ZiPS Def </th>
+      <th> Steamer Def </th>
+      <th> Ov ZiPS Line </th>
+      <th> Ov ZiPS PN Off </th>
     </tr>
     </thead>
 
@@ -31,6 +33,9 @@
     <% @matchups.each do |matchup| %>
      <tr>
       <td> <%= matchup.visitor.name + " (" + matchup.visiting_pitcher.name + ")" %> </td>
+      <td> <%= matchup.visitor.runs_per_nine %> </td>
+      <td> <%= matchup.visitor.bsr_per_game %> </td>
+       <td> <%= matchup.visiting_pitcher.era %> </td>
       <td> <%= matchup.visiting_pitcher.sierra %> </td>
       <td> <%= matchup.visiting_pitcher.fip %> </td>
       <td> <%= matchup.visiting_pitcher.xfip %> </td>
@@ -46,11 +51,13 @@
       <td> <%= matchup.pf_adj(matchup.visitor.zips_defense(matchup.visiting_pitcher.name)) %> </td>
       <td> <%= matchup.pf_adj(matchup.visitor.steamer_defense(matchup.visiting_pitcher.name)) %> </td>
       <td> </td>
-      <td> </td>
-      <td> </td>
+      <td> <%= matchup.visitor.zips_overnight_offense matchup.home_pitcher.name %> </td>
     </tr>
     <tr>
     <td> <%= matchup.home.name + " (" + matchup.home_pitcher.name + ")" %> </td>
+      <td> <%= matchup.home.runs_per_nine %> </td>
+      <td> <%= matchup.home.bsr_per_game %> </td>
+      <td> <%= matchup.home_pitcher.era %> </td>
       <td> <%= matchup.home_pitcher.sierra %> </td>
       <td> <%= matchup.home_pitcher.fip %> </td>
       <td> <%= matchup.home_pitcher.xfip %> </td>
@@ -66,9 +73,8 @@
       <td> <%= matchup.pf_adj matchup.home.zips_true_lineup_offense %> </td>
       <td> <%= matchup.pf_adj(matchup.home.zips_defense(matchup.home_pitcher.name)) %> </td>
       <td> <%= matchup.pf_adj(matchup.home.steamer_defense(matchup.home_pitcher.name)) %> </td>
-      <td> </td>
-      <td> </td>
-      <td> </td>
+      <td> <%= matchup.zips_ov_line %> </td>
+      <td> <%= matchup.home.zips_overnight_offense matchup.visiting_pitcher.name %> </td>
     </tr>
     <tr><td colspan="12"></td></tr>
     <% end %>

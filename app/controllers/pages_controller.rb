@@ -29,7 +29,7 @@ class PagesController < ApplicationController
   end
 
   def lines
-    @matchups = Matchup.where.not(visiting_pitcher_id: nil).where(day: Date.today..Date.today + 2.days, ).order("day").order("created_at desc")
+    @matchups = Matchup.where.not(visiting_pitcher_id: nil).where.not(home_pitcher_id: nil).where(day: Date.today..Date.today + 2.days, ).order("day").order("created_at desc")
   end
 
 end

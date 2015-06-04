@@ -27,12 +27,13 @@
 #  steamer_ip     :integer
 #  steamer_er     :integer
 #  steamer_so     :integer
-#  steamer_whip   :integer
 #  steamer_homers :integer
 #  steamer_hits   :integer
 #  throws         :integer
 #  fip            :float
 #  xfip           :float
+#  steamer_whip   :float
+#  era            :float
 #
 # Indexes
 #
@@ -63,7 +64,7 @@ class Pitcher < ActiveRecord::Base
     agent = Mechanize.new
     stuff = []
     for i in 1..pages
-      stuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=20&type=c,4,5,11,7,8,13,9,122,45,62&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=20&type=c,4,5,11,7,8,13,9,122,45,62&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
+      stuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=20&type=c,4,5,11,7,8,13,9,122,45,62,6&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=20&type=c,4,5,11,7,8,13,9,122,45,62,6&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
     end
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
@@ -72,9 +73,9 @@ class Pitcher < ActiveRecord::Base
     data.each do |x|
       pitcher = Pitcher.find_by(name: x[1][0])
       if pitcher.nil?
-        not_found << x[1][0] + " " + x[10][0] + " " + x[11][0] + " " + x[12][0]
+        not_found << x[1][0] + " " + x[10][0] + " " + x[11][0] + " " + x[12][0] + " " + x[13][0]
       else
-        pitcher.update_attributes(sierra: x[10][0].to_f, fip: x[11][0].to_f, xfip: x[12][0].to_f)
+        pitcher.update_attributes(sierra: x[10][0].to_f, fip: x[11][0].to_f, xfip: x[12][0].to_f, era: x[13][0].to_f)
       end
     end
     not_found
@@ -97,12 +98,12 @@ class Pitcher < ActiveRecord::Base
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
     data.each do |x|
-      pitcher = Pitcher.where(name: x[0].join(",")).first_or_initialize
-      pitcher.update_attributes(team_id: (Team.where(name: x[1].join(",")).first_or_create).id, zips_wins: x[2].join(","), zips_games: x[6].join(","), zips_gs: x[5].join(","), zips_ip: x[7].join(","), zips_hits: x[8].join(","), zips_er: x[9].join(","), zips_homers: x[10].join(","), zips_so: x[11].join(","), zips_whip: x[13].join(",") )
+      pitcher = Pitcher.where(name: x[0].join(","), team_id: Team.find_by(name: x[1].join(",")).id).first_or_create
+      pitcher.update_attributes(zips_wins: x[2].join(","), zips_games: x[6].join(","), zips_gs: x[5].join(","), zips_ip: x[7].join(","), zips_hits: x[8].join(","), zips_er: x[9].join(","), zips_homers: x[10].join(","), zips_so: x[11].join(","), zips_whip: x[13].join(",") )
     end
     moredata.each do |x|
-      pitcher = Pitcher.where(name: x[0].join(",")).first_or_initialize
-      pitcher.update_attributes(team_id: (Team.where(name: x[1].join(",")).first_or_create).id, steamer_wins: x[2].join(","), steamer_games: x[6].join(","), steamer_gs: x[5].join(","), steamer_ip: x[8].join(","), steamer_hits: x[9].join(","), steamer_er: x[10].join(","), steamer_homers: x[11].join(","), steamer_so: x[12].join(","), steamer_whip: x[14].join(",") )
+      pitcher = Pitcher.where(name: x[0].join(","), team_id: Team.find_by(name: x[1].join(",")).id).first_or_create
+      pitcher.update_attributes(steamer_wins: x[2].join(","), steamer_games: x[6].join(","), steamer_gs: x[5].join(","), steamer_ip: x[8].join(","), steamer_hits: x[9].join(","), steamer_er: x[10].join(","), steamer_homers: x[11].join(","), steamer_so: x[12].join(","), steamer_whip: x[14].join(",") )
     end
   end
 
@@ -112,7 +113,8 @@ class Pitcher < ActiveRecord::Base
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Pitcher.create(name: pitcher, team_id: Team.find_by(name: team).id, zips_wins: data[3][2][0], zips_games: data[3][5][0], zips_gs: data[3][6][0], zips_ip: data[3][12][0], zips_hits: data[3][14][0], zips_er: data[3][16][0], zips_homers: data[3][17][0], zips_so: data[3][23][0], zips_whip: data[3][10][0] )
+    pitcher = Pitcher.where(name: pitcher, team_id: Team.find_by(name: team).id).first_or_create
+    pitcher.update_attributes(zips_wins: data[3][2][0], zips_games: data[3][5][0], zips_gs: data[3][6][0], zips_ip: data[3][12][0], zips_hits: data[3][14][0], zips_er: data[3][16][0], zips_homers: data[3][17][0], zips_so: data[3][23][0], zips_whip: data[3][10][0] )
   end
 
   def self.get_zips_one_pitcher_hidden url, pitcher, team, row #indiv import with no zips on page
@@ -121,7 +123,8 @@ class Pitcher < ActiveRecord::Base
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Pitcher.create(name: pitcher, team_id: Team.find_by(name: team).id, zips_wins: data[row][2][0], zips_games: data[row][5][0], zips_gs: data[row][6][0], zips_ip: data[row][12][0], zips_hits: data[row][14][0], zips_er: data[row][16][0], zips_homers: data[row][17][0], zips_so: data[row][23][0], zips_whip: data[row][10][0] )
+    pitcher = Pitcher.where(name: pitcher, team_id: Team.find_by(name: team).id).first_or_create
+    pitcher.update_attributes(zips_wins: data[row][2][0], zips_games: data[row][5][0], zips_gs: data[row][6][0], zips_ip: data[row][12][0], zips_hits: data[row][14][0], zips_er: data[row][16][0], zips_homers: data[row][17][0], zips_so: data[row][23][0], zips_whip: data[row][10][0] )
   end
 
   def display_fd_salary

@@ -6,12 +6,30 @@ ActiveAdmin.register Team do
   end
 
   show do
-    panel "Lineup" do
+    panel "True Lineup" do
       table_for team.batters do
         column "Batters" do |batter|
           batter.name
         end
         column :lineup_spot
+      end
+    end
+
+    panel "RH Lineup" do
+      table_for team.batters do
+        column "Batters" do |batter|
+          batter.name
+        end
+        column :rh_overnight_lineup_spot
+      end
+    end
+
+    panel "LH Lineup" do
+      table_for team.batters do
+        column "Batters" do |batter|
+          batter.name
+        end
+        column :lh_overnight_lineup_spot
       end
     end
 
@@ -34,6 +52,8 @@ ActiveAdmin.register Team do
       f.has_many :batters do |c|
         c.input :name
         c.input :lineup_spot
+        c.input :rh_overnight_lineup_spot
+        c.input :lh_overnight_lineup_spot
       end
     end
     f.inputs do
@@ -45,7 +65,7 @@ ActiveAdmin.register Team do
     f.actions
   end
 
-  permit_params :name, batters_attributes: [:id, :name, :lineup_spot], pitchers_attributes: [:id, :name, :reliever]
+  permit_params :name, batters_attributes: [:id, :name, :lineup_spot, :rh_overnight_lineup_spot, :lh_overnight_lineup_spot], pitchers_attributes: [:id, :name, :reliever]
 
 
 

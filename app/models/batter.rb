@@ -28,6 +28,58 @@
 #  selected                 :boolean
 #  rh_overnight_lineup_spot :integer
 #  lh_overnight_lineup_spot :integer
+#  zips_pa_rhp              :integer
+#  zips_ab_rhp              :integer
+#  zips_hits_rhp            :integer
+#  zips_doubles_rhp         :integer
+#  zips_triples_rhp         :integer
+#  zips_homers_rhp          :integer
+#  zips_runs_rhp            :integer
+#  zips_rbis_rhp            :integer
+#  zips_walks_rhp           :integer
+#  zips_hbps_rhp            :integer
+#  zips_pa_lhp              :integer
+#  zips_ab_lhp              :integer
+#  zips_hits_lhp            :integer
+#  zips_doubles_lhp         :integer
+#  zips_triples_lhp         :integer
+#  zips_homers_lhp          :integer
+#  zips_runs_lhp            :integer
+#  zips_rbis_lhp            :integer
+#  zips_walks_lhp           :integer
+#  zips_hbps_lhp            :integer
+#  pa_rhp                   :integer
+#  ab_rhp                   :integer
+#  hits_rhp                 :integer
+#  doubles_rhp              :integer
+#  triples_rhp              :integer
+#  homers_rhp               :integer
+#  runs_rhp                 :integer
+#  rbis_rhp                 :integer
+#  walks_rhp                :integer
+#  hbps_rhp                 :integer
+#  pa_lhp                   :integer
+#  ab_lhp                   :integer
+#  hits_lhp                 :integer
+#  doubles_lhp              :integer
+#  triples_lhp              :integer
+#  homers_lhp               :integer
+#  runs_lhp                 :integer
+#  rbis_lhp                 :integer
+#  walks_lhp                :integer
+#  hbps_lhp                 :integer
+#  pa                       :integer
+#  ab                       :integer
+#  hits                     :integer
+#  doubles                  :integer
+#  triples                  :integer
+#  homers                   :integer
+#  runs                     :integer
+#  rbis                     :integer
+#  walks                    :integer
+#  hbps                     :integer
+#  sb                       :integer
+#  cs                       :integer
 #
 # Indexes
 #
@@ -101,6 +153,31 @@ class Batter < ActiveRecord::Base
 
   def nine_inning_papg #plate app/game
     case self.lineup_spot
+    when 1
+      avg = 4.649
+    when 2
+      avg = 4.538
+    when 3
+      avg = 4.427
+    when 4
+      avg = 4.316
+    when 5
+      avg = 4.205
+    when 6
+      avg = 4.094
+    when 7
+      avg = 3.983
+    when 8
+      avg = 3.872
+    when 9
+      avg = 3.761
+    else
+      avg = 0
+    end
+  end
+
+  def overnight_nine_inning_papg spot #plate app/game
+    case spot
     when 1
       avg = 4.649
     when 2
@@ -241,11 +318,6 @@ class Batter < ActiveRecord::Base
   def self.get_lineups
     agent = Mechanize.new
     stuff = agent.get("http://www.baseballpress.com/lineups").search('.players')
-    games = agent.get("http://www.baseballpress.com/lineups").search('.team-name')
-    teams = games.map { |node| node.children.text }
-    (teams.length / 2).times do
-      Matchup.where(home_id: Team.find_by(name: teams.pop).id, visitor_id: Team.find_by(name: teams.pop).id, day: Date.today).first_or_create
-    end
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
@@ -315,13 +387,13 @@ class Batter < ActiveRecord::Base
     Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, zips_pa: data[row][4][0], zips_ab: data[row][3][0], zips_hits: data[row][5][0], zips_doubles: data[row][7][0], zips_triples: data[row][8][0], zips_homers: data[row][9][0], zips_runs: data[row][10][0], zips_rbis: data[row][11][0], zips_walks: data[row][12][0], zips_hbps: data[row][15][0], zips_sb: data[row][19][0], zips_cs: data[row][20][0] )
   end
 
-  def self.get_zips_one_batter_data url, batter, team, position #indiv import with zips on page
+  def self.get_zips_one_batter_data url, batter, team, position, row #indiv import with zips on page
     agent = Mechanize.new
     stuff = agent.get(url).search(".grid_projectionsin_show")
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
-    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, zips_pa: data[1][4][0], zips_ab: data[1][3][0], zips_hits: data[1][5][0], zips_doubles: data[1][7][0], zips_triples: data[1][8][0], zips_homers: data[1][9][0], zips_runs: data[1][10][0], zips_rbis: data[1][11][0], zips_walks: data[1][12][0], zips_hbps: data[1][15][0], zips_sb: data[1][19][0], zips_cs: data[1][20][0] )
+    Batter.create(name: batter, position: position, team_id: (Team.where(name: team).first_or_create).id, zips_pa: data[row][4][0], zips_ab: data[row][3][0], zips_hits: data[row][5][0], zips_doubles: data[row][7][0], zips_triples: data[row][8][0], zips_homers: data[row][9][0], zips_runs: data[row][10][0], zips_rbis: data[row][11][0], zips_walks: data[row][12][0], zips_hbps: data[row][15][0], zips_sb: data[row][19][0], zips_cs: data[row][20][0] )
   end
 
   def self.use_season_stats_for_zips url, batter, team, position, row

@@ -8,6 +8,9 @@
 #  updated_at     :datetime         not null
 #  fd_park_factor :float
 #  park_factor    :float
+#  base_runs      :float
+#  runs_per_nine  :float
+#  games          :integer
 #
 
 require 'rails_helper'

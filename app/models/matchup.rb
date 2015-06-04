@@ -32,6 +32,14 @@ class Matchup < ActiveRecord::Base
     self.line_calculation visitor_off, visitor_def, home_off, home_def
   end
 
+  def zips_ov_line
+    visitor_off = self.pf_adj(self.visitor.zips_overnight_offense(self.home_pitcher.name))
+    visitor_def = self.pf_adj(self.visitor.zips_defense(self.visiting_pitcher.name))
+    home_off = self.pf_adj(self.home.zips_overnight_offense(self.visiting_pitcher.name))
+    home_def = self.pf_adj(self.home.zips_defense(self.home_pitcher.name))
+    self.line_calculation visitor_off, visitor_def, home_off, home_def
+  end
+
   def steamer_tl_line
     visitor_off = self.pf_adj self.visitor.zips_true_lineup_offense
     visitor_def = self.pf_adj(self.visitor.steamer_defense(self.visiting_pitcher.name))
