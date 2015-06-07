@@ -34,7 +34,6 @@
 #  zips_doubles_rhp         :integer
 #  zips_triples_rhp         :integer
 #  zips_homers_rhp          :integer
-#  zips_runs_rhp            :integer
 #  zips_rbis_rhp            :integer
 #  zips_walks_rhp           :integer
 #  zips_hbps_rhp            :integer
@@ -44,7 +43,6 @@
 #  zips_doubles_lhp         :integer
 #  zips_triples_lhp         :integer
 #  zips_homers_lhp          :integer
-#  zips_runs_lhp            :integer
 #  zips_rbis_lhp            :integer
 #  zips_walks_lhp           :integer
 #  zips_hbps_lhp            :integer
@@ -54,7 +52,6 @@
 #  doubles_rhp              :integer
 #  triples_rhp              :integer
 #  homers_rhp               :integer
-#  runs_rhp                 :integer
 #  rbis_rhp                 :integer
 #  walks_rhp                :integer
 #  hbps_rhp                 :integer
@@ -64,7 +61,6 @@
 #  doubles_lhp              :integer
 #  triples_lhp              :integer
 #  homers_lhp               :integer
-#  runs_lhp                 :integer
 #  rbis_lhp                 :integer
 #  walks_lhp                :integer
 #  hbps_lhp                 :integer

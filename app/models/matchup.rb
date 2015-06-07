@@ -25,9 +25,9 @@ class Matchup < ActiveRecord::Base
   belongs_to :home_pitcher, class_name: "Pitcher"
 
   def zips_tl_line
-    visitor_off = self.pf_adj self.visitor.zips_true_lineup_offense
+    visitor_off = self.pf_adj(self.visitor.zips_true_lineup_offense(self.home_pitcher.name))
     visitor_def = self.pf_adj(self.visitor.zips_defense(self.visiting_pitcher.name))
-    home_off = self.pf_adj self.home.zips_true_lineup_offense
+    home_off = self.pf_adj(self.home.zips_true_lineup_offense(self.visiting_pitcher.name))
     home_def = self.pf_adj(self.home.zips_defense(self.home_pitcher.name))
     self.line_calculation visitor_off, visitor_def, home_off, home_def
   end

@@ -34,7 +34,6 @@
 #  zips_doubles_rhp         :integer
 #  zips_triples_rhp         :integer
 #  zips_homers_rhp          :integer
-#  zips_runs_rhp            :integer
 #  zips_rbis_rhp            :integer
 #  zips_walks_rhp           :integer
 #  zips_hbps_rhp            :integer
@@ -44,7 +43,6 @@
 #  zips_doubles_lhp         :integer
 #  zips_triples_lhp         :integer
 #  zips_homers_lhp          :integer
-#  zips_runs_lhp            :integer
 #  zips_rbis_lhp            :integer
 #  zips_walks_lhp           :integer
 #  zips_hbps_lhp            :integer
@@ -54,7 +52,6 @@
 #  doubles_rhp              :integer
 #  triples_rhp              :integer
 #  homers_rhp               :integer
-#  runs_rhp                 :integer
 #  rbis_rhp                 :integer
 #  walks_rhp                :integer
 #  hbps_rhp                 :integer
@@ -64,7 +61,6 @@
 #  doubles_lhp              :integer
 #  triples_lhp              :integer
 #  homers_lhp               :integer
-#  runs_lhp                 :integer
 #  rbis_lhp                 :integer
 #  walks_lhp                :integer
 #  hbps_lhp                 :integer
@@ -205,6 +201,14 @@ class Batter < ActiveRecord::Base
     self.zips_hits - self.zips_doubles - self.zips_triples - self.zips_homers
   end
 
+  def zips_singles_lhp
+    self.zips_hits_lhp - self.zips_doubles_lhp - self.zips_triples_lhp - self.zips_homers_lhp
+  end
+
+  def zips_singles_rhp
+    self.zips_hits_rhp - self.zips_doubles_rhp - self.zips_triples_rhp - self.zips_homers_rhp
+  end
+
   def self.ballpark
     agent = Mechanize.new
     stuff = agent.get("http://www.baseball-reference.com/leagues/split.cgi?t=b&year=2013&lg=MLB#lineu").search('tr')
@@ -300,21 +304,6 @@ class Batter < ActiveRecord::Base
     self.zips_adj_fd_ppg = self.zips_adj_fd_ppg.round(2)
   end
 
-  def self.get_games date   #format - 2015-05-20
-    agent = Mechanize.new
-    games = agent.get("http://www.baseballpress.com/lineups/" + date).search('.team-data')
-    data = games.map do |node|
-      node.children.map{|n| [n.text.strip] if n.elem? }.compact
-    end.compact
-    (data.length / 2).times do
-      team = data.pop
-      home_team = team[1][0].split(/\r?\n/).first
-      team2 = data.pop
-      away_team = team2[1][0].split(/\r?\n/).first
-      Matchup.create(home_id: Team.find_by(name: home_team).id, visitor_id: Team.find_by(name: away_team).id, day: date)
-    end
-  end
-
   def self.get_lineups
     agent = Mechanize.new
     stuff = agent.get("http://www.baseballpress.com/lineups").search('.players')
@@ -376,6 +365,57 @@ class Batter < ActiveRecord::Base
       batter = Batter.where(name: x[0].join(",")).first_or_initialize
       batter.update_attributes(team_id: (Team.where(name: x[1].join(",")).first_or_create).id, zips_pa: x[3].join(","), zips_ab: x[4].join(","), zips_hits: x[5].join(","), zips_doubles: x[6].join(","), zips_triples: x[7].join(","), zips_homers: x[8].join(","), zips_runs: x[9].join(","), zips_rbis: x[10].join(","), zips_walks: x[11].join(","), zips_hbps: x[13].join(","), zips_sb: x[14].join(","), zips_cs: x[15].join(",") )
     end
+  end
+
+  def self.get_stats pages
+    agent = Mechanize.new
+    stuff = []
+    for i in 1..pages
+      stuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
+    end
+    data = stuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    not_found = []
+    data.each do |x|
+      batter = Batter.find_by(name: x[1][0])
+      if batter.nil?
+        not_found << x[1][0]
+      else
+        batter.update_attributes(pa_lhp: x[5][0], ab_lhp: x[4][0], hits_lhp: x[6][0], doubles_lhp: x[8][0], triples_lhp: x[9][0], homers_lhp: x[10][0], rbis_lhp: x[12][0], walks_lhp: x[13][0], hbps_lhp: x[16][0] )
+      end
+    end
+    morestuff = []
+    for i in 1..pages
+      morestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=1&season=2015&month=14&season1=2015&ind=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=1&season=2015&month=14&season1=2015&ind=0&page=' + i.to_s + '_30').search(".rgAltRow")
+    end
+    moredata = morestuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    moredata.each do |x|
+      batter = Batter.find_by(name: x[1][0])
+      if batter.nil?
+        not_found << x[1][0]
+      else
+        batter.update_attributes(pa_rhp: x[5][0], ab_rhp: x[4][0], hits_rhp: x[6][0], doubles_rhp: x[8][0], triples_rhp: x[9][0], homers_rhp: x[10][0], rbis_rhp: x[12][0], walks_rhp: x[13][0], hbps_rhp: x[16][0] )
+      end
+    end
+    evenmorestuff = []
+    for i in 1..pages
+      evenmorestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
+    end
+    evenmoredata = evenmorestuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    evenmoredata.each do |x|
+      batter = Batter.find_by(name: x[1][0])
+      if batter.nil?
+        not_found << x[1][0]
+      else
+        batter.update_attributes(pa: x[5][0], ab: x[4][0], hits: x[6][0], doubles: x[8][0], triples: x[9][0], homers: x[10][0], runs: x[11][0], rbis: x[12][0], walks: x[13][0], hbps: x[16][0], sb: x[20][0], cs: x[21][0])
+      end
+    end
+    not_found.uniq
   end
 
   def self.get_zips_one_batter_hidden url, batter, team, position, row #indiv import with no zips on page
@@ -554,6 +594,17 @@ class Batter < ActiveRecord::Base
 
   def self.outfielders_sorted_by_adj_fd_pts_per_1000_dollars
     Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "OF", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
+  end
+
+  require 'csv'
+
+  def self.import_zips_splits()
+    CSV.foreach('zipssplits.csv') do |row|
+      record = Batter.find_by name: row[0]
+      unless record.blank?
+        record.update_attributes(zips_pa_lhp: row[1], zips_ab_lhp: row[2], zips_hits_lhp: row[3], zips_doubles_lhp: row[4], zips_triples_lhp: row[5], zips_homers_lhp: row[6], zips_rbis_lhp: row[7], zips_walks_lhp: row[8], zips_hbps_lhp: row[10], zips_pa_rhp: row[18], zips_ab_rhp: row[19], zips_hits_rhp: row[20], zips_doubles_rhp: row[21], zips_triples_rhp: row[22], zips_homers_rhp: row[23], zips_rbis_rhp: row[24], zips_walks_rhp: row[25], zips_hbps_rhp: row[27] )
+      end
+    end
   end
 
 end

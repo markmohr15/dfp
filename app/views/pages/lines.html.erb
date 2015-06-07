@@ -44,10 +44,10 @@
       <td></td>
       <td></td>
       <td></td>
-      <td> <%= matchup.visitor.zips_true_lineup_offense %> </td>
+      <td> <%= matchup.visitor.zips_true_lineup_offense matchup.home_pitcher.name %> </td>
       <td> <%= matchup.visitor.zips_defense(matchup.visiting_pitcher.name) %> </td>
       <td> <%= matchup.visitor.steamer_defense(matchup.visiting_pitcher.name) %> </td>
-      <td> <%= matchup.pf_adj matchup.visitor.zips_true_lineup_offense %> </td>
+      <td> <%= matchup.pf_adj(matchup.visitor.zips_true_lineup_offense(matchup.home_pitcher.name)) %> </td>
       <td> <%= matchup.pf_adj(matchup.visitor.zips_defense(matchup.visiting_pitcher.name)) %> </td>
       <td> <%= matchup.pf_adj(matchup.visitor.steamer_defense(matchup.visiting_pitcher.name)) %> </td>
       <td> </td>
@@ -67,10 +67,10 @@
       <td> <%= matchup.my_line(current_user) %> </td>
       <td> <%= matchup.zips_tl_line %> </td>
       <td> <%#= matchup.steamer_tl_line %> </td>
-      <td> <%= matchup.home.zips_true_lineup_offense %> </td>
+      <td> <%= matchup.home.zips_true_lineup_offense matchup.visiting_pitcher.name %> </td>
       <td> <%= matchup.home.zips_defense(matchup.home_pitcher.name) %> </td>
       <td> <%= matchup.home.steamer_defense(matchup.home_pitcher.name) %> </td>
-      <td> <%= matchup.pf_adj matchup.home.zips_true_lineup_offense %> </td>
+      <td> <%= matchup.pf_adj(matchup.home.zips_true_lineup_offense(matchup.visiting_pitcher.name)) %> </td>
       <td> <%= matchup.pf_adj(matchup.home.zips_defense(matchup.home_pitcher.name)) %> </td>
       <td> <%= matchup.pf_adj(matchup.home.steamer_defense(matchup.home_pitcher.name)) %> </td>
       <td> <%= matchup.zips_ov_line %> </td>

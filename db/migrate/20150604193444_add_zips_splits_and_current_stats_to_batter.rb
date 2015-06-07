@@ -6,7 +6,6 @@ class AddZipsSplitsAndCurrentStatsToBatter < ActiveRecord::Migration
     add_column :batters, :zips_doubles_rhp, :integer
     add_column :batters, :zips_triples_rhp, :integer
     add_column :batters, :zips_homers_rhp, :integer
-    add_column :batters, :zips_runs_rhp, :integer
     add_column :batters, :zips_rbis_rhp, :integer
     add_column :batters, :zips_walks_rhp, :integer
     add_column :batters, :zips_hbps_rhp, :integer
@@ -16,7 +15,6 @@ class AddZipsSplitsAndCurrentStatsToBatter < ActiveRecord::Migration
     add_column :batters, :zips_doubles_lhp, :integer
     add_column :batters, :zips_triples_lhp, :integer
     add_column :batters, :zips_homers_lhp, :integer
-    add_column :batters, :zips_runs_lhp, :integer
     add_column :batters, :zips_rbis_lhp, :integer
     add_column :batters, :zips_walks_lhp, :integer
     add_column :batters, :zips_hbps_lhp, :integer
@@ -27,7 +25,6 @@ class AddZipsSplitsAndCurrentStatsToBatter < ActiveRecord::Migration
     add_column :batters, :doubles_rhp, :integer
     add_column :batters, :triples_rhp, :integer
     add_column :batters, :homers_rhp, :integer
-    add_column :batters, :runs_rhp, :integer
     add_column :batters, :rbis_rhp, :integer
     add_column :batters, :walks_rhp, :integer
     add_column :batters, :hbps_rhp, :integer
@@ -37,7 +34,6 @@ class AddZipsSplitsAndCurrentStatsToBatter < ActiveRecord::Migration
     add_column :batters, :doubles_lhp, :integer
     add_column :batters, :triples_lhp, :integer
     add_column :batters, :homers_lhp, :integer
-    add_column :batters, :runs_lhp, :integer
     add_column :batters, :rbis_lhp, :integer
     add_column :batters, :walks_lhp, :integer
     add_column :batters, :hbps_lhp, :integer

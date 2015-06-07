@@ -63,27 +63,67 @@ class Team < ActiveRecord::Base
     pa_counter = 0
     lineup.each do |batter|
       if pitcher.throws == "right"
-        hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
-        walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
-        homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
-        doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
-        triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
-        abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
-        hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
+        hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3
+        walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3
+        homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3
+        doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3
+        triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3
+        abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3
+        hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3
         sb_counter += batter.zips_sb / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
         cs_counter += batter.zips_cs / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
-        singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot)
+        singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3
+
+        unless batter.zips_ab_rhp.nil?
+          hits_counter += batter.zips_hits_rhp / batter.zips_pa_rhp.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          walks_counter += batter.zips_walks_rhp / batter.zips_pa_rhp.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          homers_counter += batter.zips_homers_rhp / batter.zips_pa_rhp.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          doubles_counter += batter.zips_doubles_rhp / batter.zips_pa_rhp.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          triples_counter += batter.zips_triples_rhp / batter.zips_pa_rhp.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          abs_counter += batter.zips_ab_rhp / batter.zips_pa_rhp.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          hbps_counter += batter.zips_hbps_rhp / batter.zips_pa_rhp.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          singles_counter += batter.zips_singles_rhp / batter.zips_pa_rhp.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+        else
+          hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+          singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.rh_overnight_lineup_spot) / 3 * 2
+        end
       else
-        hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
-        walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
-        homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
-        doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
-        triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
-        abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
-        hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
+        hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3
+        walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3
+        homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3
+        doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3
+        triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3
+        abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3
+        hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3
         sb_counter += batter.zips_sb / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
         cs_counter += batter.zips_cs / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
-        singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot)
+        singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3
+
+        unless batter.zips_ab_lhp.nil?
+          hits_counter += batter.zips_hits_lhp / batter.zips_pa_lhp.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          walks_counter += batter.zips_walks_lhp / batter.zips_pa_lhp.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          homers_counter += batter.zips_homers_lhp / batter.zips_pa_lhp.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          doubles_counter += batter.zips_doubles_lhp / batter.zips_pa_lhp.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          triples_counter += batter.zips_triples_lhp / batter.zips_pa_lhp.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          abs_counter += batter.zips_ab_lhp / batter.zips_pa_lhp.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          hbps_counter += batter.zips_hbps_lhp / batter.zips_pa_lhp.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          singles_counter += batter.zips_singles_lhp / batter.zips_pa_lhp.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+        else
+          hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+          singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.overnight_nine_inning_papg(batter.lh_overnight_lineup_spot) / 3 * 2
+        end
       end
     end
     tb = singles_counter + doubles_counter * 2 + triples_counter * 3 + homers_counter * 4
@@ -100,19 +140,18 @@ class Team < ActiveRecord::Base
     runs.round(2)
   end
 
-
-  def zips_true_lineup_offense
+  def zips_true_lineup_offense opp_pitcher
     batters = Batter.where("team_id = ? and lineup_spot > ?", self.id, 0)
     lineup = batters.to_a
     if batters.count < 9
-      pitcher = Batter.find_by(name: "Pitcher Batting", team_id: self.id)
+      pitcher_hitting = Batter.find_by(name: "Pitcher Batting", team_id: self.id)
       if Batter.where(lineup_spot:8, team_id: self.id).exists?
-        pitcher.lineup_spot = 9
+        pitcher_hitting.lineup_spot = 9
       else
-        pitcher.lineup_spot = 8
+        pitcher_hitting.lineup_spot = 8
       end
-      pitcher.save
-      lineup << pitcher
+      pitcher_hitting.save
+      lineup << pitcher_hitting
     end
     hits_counter = 0
     walks_counter = 0
@@ -125,17 +164,71 @@ class Team < ActiveRecord::Base
     sb_counter = 0
     cs_counter = 0
     pa_counter = 0
+    pitcher = Pitcher.find_by name: opp_pitcher
     lineup.each do |batter|
-      hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.nine_inning_papg
-      walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.nine_inning_papg
-      homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.nine_inning_papg
-      doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.nine_inning_papg
-      triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.nine_inning_papg
-      abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.nine_inning_papg
-      hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.nine_inning_papg
-      sb_counter += batter.zips_sb / batter.zips_pa.to_f * batter.nine_inning_papg
-      cs_counter += batter.zips_cs / batter.zips_pa.to_f * batter.nine_inning_papg
-      singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.nine_inning_papg
+      if pitcher.throws == "right"
+        hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.nine_inning_papg/ 3
+        sb_counter += batter.zips_sb / batter.zips_pa.to_f * batter.nine_inning_papg
+        cs_counter += batter.zips_cs / batter.zips_pa.to_f * batter.nine_inning_papg
+        singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+
+        unless batter.zips_ab_rhp.nil?
+          hits_counter += batter.zips_hits_rhp / batter.zips_pa_rhp.to_f * batter.nine_inning_papg / 3 * 2
+          walks_counter += batter.zips_walks_rhp / batter.zips_pa_rhp.to_f * batter.nine_inning_papg / 3 * 2
+          homers_counter += batter.zips_homers_rhp / batter.zips_pa_rhp.to_f * batter.nine_inning_papg / 3 * 2
+          doubles_counter += batter.zips_doubles_rhp / batter.zips_pa_rhp.to_f * batter.nine_inning_papg / 3 * 2
+          triples_counter += batter.zips_triples_rhp / batter.zips_pa_rhp.to_f * batter.nine_inning_papg / 3 * 2
+          abs_counter += batter.zips_ab_rhp / batter.zips_pa_rhp.to_f * batter.nine_inning_papg / 3 * 2
+          hbps_counter += batter.zips_hbps_rhp / batter.zips_pa_rhp.to_f * batter.nine_inning_papg / 3 * 2
+          singles_counter += batter.zips_singles_rhp / batter.zips_pa_rhp.to_f * batter.nine_inning_papg / 3 * 2
+        else
+          hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+        end
+      else
+        hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+        sb_counter += batter.zips_sb / batter.zips_pa.to_f * batter.nine_inning_papg
+        cs_counter += batter.zips_cs / batter.zips_pa.to_f * batter.nine_inning_papg
+        singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.nine_inning_papg / 3
+
+        unless batter.zips_ab_lhp.nil?
+          hits_counter += batter.zips_hits_lhp / batter.zips_pa_lhp.to_f * batter.nine_inning_papg / 3 * 2
+          walks_counter += batter.zips_walks_lhp / batter.zips_pa_lhp.to_f * batter.nine_inning_papg / 3 * 2
+          homers_counter += batter.zips_homers_lhp / batter.zips_pa_lhp.to_f * batter.nine_inning_papg / 3 * 2
+          doubles_counter += batter.zips_doubles_lhp / batter.zips_pa_lhp.to_f * batter.nine_inning_papg / 3 * 2
+          triples_counter += batter.zips_triples_lhp / batter.zips_pa_lhp.to_f * batter.nine_inning_papg / 3 * 2
+          abs_counter += batter.zips_ab_lhp / batter.zips_pa_lhp.to_f * batter.nine_inning_papg / 3 * 2
+          hbps_counter += batter.zips_hbps_lhp / batter.zips_pa_lhp.to_f * batter.nine_inning_papg / 3 * 2
+          singles_counter += batter.zips_singles_lhp / batter.zips_pa_lhp.to_f * batter.nine_inning_papg / 3 * 2
+        else
+          hits_counter += batter.zips_hits / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          walks_counter += batter.zips_walks / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          homers_counter += batter.zips_homers / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          doubles_counter += batter.zips_doubles / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          triples_counter += batter.zips_triples / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          abs_counter += batter.zips_ab / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          hbps_counter += batter.zips_hbps / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+          singles_counter += batter.zips_singles / batter.zips_pa.to_f * batter.nine_inning_papg / 3 * 2
+        end
+      end
     end
     tb = singles_counter + doubles_counter * 2 + triples_counter * 3 + homers_counter * 4
     a = hits_counter + walks_counter + hbps_counter - homers_counter - 0.1
@@ -210,6 +303,21 @@ class Team < ActiveRecord::Base
 
   def bsr_per_game
     (self.base_runs / self.games.to_f).round(2)
+  end
+
+  def self.get_games date   #format - 2015-05-20
+    agent = Mechanize.new
+    games = agent.get("http://www.baseballpress.com/lineups/" + date).search('.team-data')
+    data = games.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end.compact
+    (data.length / 2).times do
+      team = data.pop
+      home_team = team[1][0].split(/\r?\n/).first
+      team2 = data.pop
+      away_team = team2[1][0].split(/\r?\n/).first
+      Matchup.create(home_id: Team.find_by(name: home_team).id, visitor_id: Team.find_by(name: away_team).id, day: date)
+    end
   end
 
   def self.get_stats
