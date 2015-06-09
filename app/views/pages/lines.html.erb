@@ -5,9 +5,11 @@
   <table class="table table-responsive table-striped">
     <thead>
     <tr>
+      <th> Date </th>
       <th> Teams </th>
       <th> Runs/9 </th>
-      <th> BsR/game </th>
+      <th> BsR/gm </th>
+      <th> Park Factor </th>
       <th> ERA
       <th> SIERA </th>
       <th> FIP </th>
@@ -32,9 +34,11 @@
 
     <% @matchups.each do |matchup| %>
      <tr>
+      <td> </td>
       <td> <%= matchup.visitor.name + " (" + matchup.visiting_pitcher.name + ")" %> </td>
       <td> <%= matchup.visitor.runs_per_nine %> </td>
       <td> <%= matchup.visitor.bsr_per_game %> </td>
+      <td> <%= matchup.visitor.park_factor %> </td>
        <td> <%= matchup.visiting_pitcher.era %> </td>
       <td> <%= matchup.visiting_pitcher.sierra %> </td>
       <td> <%= matchup.visiting_pitcher.fip %> </td>
@@ -53,10 +57,13 @@
       <td> </td>
       <td> <%= matchup.visitor.zips_overnight_offense matchup.home_pitcher.name %> </td>
     </tr>
+
     <tr>
+    <td> <%= matchup.day.strftime("%_m/%-d") %> </td>
     <td> <%= matchup.home.name + " (" + matchup.home_pitcher.name + ")" %> </td>
       <td> <%= matchup.home.runs_per_nine %> </td>
       <td> <%= matchup.home.bsr_per_game %> </td>
+      <td> <%= matchup.home.park_factor %> </td>
       <td> <%= matchup.home_pitcher.era %> </td>
       <td> <%= matchup.home_pitcher.sierra %> </td>
       <td> <%= matchup.home_pitcher.fip %> </td>
@@ -76,7 +83,8 @@
       <td> <%= matchup.zips_ov_line %> </td>
       <td> <%= matchup.home.zips_overnight_offense matchup.visiting_pitcher.name %> </td>
     </tr>
-    <tr><td colspan="12"></td></tr>
+    <tr><td colspan="22"></td></tr>
+    <tr><td colspan="22"></td></tr>
     <% end %>
   </table>
 

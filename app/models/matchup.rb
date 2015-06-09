@@ -78,8 +78,18 @@ class Matchup < ActiveRecord::Base
 
   def user_line_visitor_off user
     user_line = UserLine.find_by(user_id: user.id, matchup_id: self.id)
-    return if user_line.blank?
-    user_line.visitor_off
+    if user_line.blank?
+      old_lines = UserLine.joins(:matchup).where('user_id' => user.id, 'matchups.visitor_id' => self.visitor_id)
+      old_lines += UserLine.joins(:matchup).where('user_id' => user.id, 'matchups.home_id' => self.visitor_id)
+      old_lines.sort! { |a,b| a.matchup_id <=> b.matchup_id }
+      if old_lines.last.matchup.visitor == self.visitor
+        old_lines.last.visitor_off
+      else
+        old_lines.last.home_off
+      end
+    else
+      user_line.visitor_off
+    end
   end
 
   def user_line_visitor_def user
@@ -90,8 +100,18 @@ class Matchup < ActiveRecord::Base
 
   def user_line_home_off user
     user_line = UserLine.find_by(user_id: user.id, matchup_id: self.id)
-    return if user_line.blank?
-    user_line.home_off
+    if user_line.blank?
+      old_lines = UserLine.joins(:matchup).where('user_id' => user.id, 'matchups.visitor_id' => self.home_id)
+      old_lines += UserLine.joins(:matchup).where('user_id' => user.id, 'matchups.home_id' => self.home_id)
+      old_lines.sort! { |a,b| a.matchup_id <=> b.matchup_id }
+      if old_lines.last.matchup.visitor == self.home
+        old_lines.last.visitor_off
+      else
+        old_lines.last.home_off
+      end
+    else
+      user_line.home_off
+    end
   end
 
   def user_line_home_def user
