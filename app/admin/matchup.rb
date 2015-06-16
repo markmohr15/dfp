@@ -6,6 +6,8 @@ ActiveAdmin.register Matchup do
     column :visiting_pitcher
     column :home_pitcher
     column :day
+    column :pin_vis_close
+    column :pin_home_close
     actions
   end
 
@@ -16,6 +18,8 @@ ActiveAdmin.register Matchup do
       row :visiting_pitcher
       row :home_pitcher
       row :day
+      row :pin_vis_close
+      row :pin_home_close
     end
   end
 
@@ -35,9 +39,9 @@ ActiveAdmin.register Matchup do
 
   controller do
 
-    def scoped_collection
-      Matchup.where(day: Date.today..Date.today + 5.days)
-    end
+    #def scoped_collection
+     # Matchup.where(day: Date.today..Date.today + 5.days)
+    #end
   end
 
 end

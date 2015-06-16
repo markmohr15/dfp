@@ -34,6 +34,7 @@
 #  xfip           :float
 #  steamer_whip   :float
 #  era            :float
+#  alias          :string
 #
 # Indexes
 #

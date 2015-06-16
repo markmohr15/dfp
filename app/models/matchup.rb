@@ -10,6 +10,8 @@
 #  visiting_pitcher_id :integer
 #  home_pitcher_id     :integer
 #  day                 :date
+#  pin_vis_close       :integer
+#  pin_home_close      :integer
 #
 # Indexes
 #
@@ -149,5 +151,44 @@ class Matchup < ActiveRecord::Base
     user_line.line.round
   end
 
+  def self.get_close
+    agent = Mechanize.new
+    stuff = agent.get("http://www.sportsbookreview.com/betting-odds/mlb-baseball/").search(".status-complete")
+    data = stuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end
+    data.each do |x|
+      team = Team.find_by(alias: x[7][0].split('-').first[0..-2]).id
+      matchup = Matchup.find_by(visitor_id: team, day: Date.today - 1.day)#, pin_vis_close: nil)
+      unless matchup.blank?
+        matchup.pin_vis_close = x[11][0][0..3].to_i
+        matchup.pin_home_close = x[11][0][4..7].to_i
+        matchup.save
+      end
+    end
+  end
+
+  def self.get_pitchers date # format 2015/06/16
+    agent = Mechanize.new
+    stuff = agent.get("http://mlb.mlb.com/news/probable_pitchers/?c_id=mlb&date=" + date).search(".module")
+    data = stuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end
+    data.each do |x|
+      name = x[0][0].split("@")[0][0..-2].split(" ").last
+      if name == "Sox" || name == "Jays"
+        name = x[0][0].split("@")[0][0..-2].split(" ").second
+      end
+      team = Team.where("name ilike '%#{name}%'").first
+      matchup = Matchup.find_by(visitor_id: team.id, day: date)
+      unless x[2][0].split(",")[0] == "To Be Announced"
+        matchup.visiting_pitcher = Pitcher.where(name: x[2][0].split(",")[0]).first_or_create
+      end
+      unless x[3][0].split(",")[0] == "To Be Announced"
+        matchup.home_pitcher = Pitcher.where(name: x[3][0].split(",")[0]).first_or_create
+      end
+      matchup.save
+    end
+  end
 
 end

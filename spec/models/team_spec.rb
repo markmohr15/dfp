@@ -11,6 +11,7 @@
 #  base_runs      :float
 #  runs_per_nine  :float
 #  games          :integer
+#  alias          :string
 #
 
 require 'rails_helper'

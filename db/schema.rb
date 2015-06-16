@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150604193444) do
+ActiveRecord::Schema.define(version: 20150614032152) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -108,6 +108,7 @@ ActiveRecord::Schema.define(version: 20150604193444) do
     t.integer  "hbps"
     t.integer  "sb"
     t.integer  "cs"
+    t.string   "alias"
   end
 
   add_index "batters", ["pitcher_id"], name: "index_batters_on_pitcher_id", using: :btree
@@ -137,6 +138,8 @@ ActiveRecord::Schema.define(version: 20150604193444) do
     t.integer  "visiting_pitcher_id"
     t.integer  "home_pitcher_id"
     t.date     "day"
+    t.integer  "pin_vis_close"
+    t.integer  "pin_home_close"
   end
 
   add_index "matchups", ["home_id"], name: "index_matchups_on_home_id", using: :btree
@@ -174,6 +177,7 @@ ActiveRecord::Schema.define(version: 20150604193444) do
     t.float    "xfip"
     t.float    "steamer_whip"
     t.float    "era"
+    t.string   "alias"
   end
 
   add_index "pitchers", ["team_id"], name: "index_pitchers_on_team_id", using: :btree
@@ -187,6 +191,7 @@ ActiveRecord::Schema.define(version: 20150604193444) do
     t.float    "base_runs"
     t.float    "runs_per_nine"
     t.integer  "games"
+    t.string   "alias"
   end
 
   create_table "user_lines", force: :cascade do |t|

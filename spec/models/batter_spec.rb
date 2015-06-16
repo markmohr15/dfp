@@ -76,6 +76,7 @@
 #  hbps                     :integer
 #  sb                       :integer
 #  cs                       :integer
+#  alias                    :string
 #
 # Indexes
 #

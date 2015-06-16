@@ -76,6 +76,7 @@
 #  hbps                     :integer
 #  sb                       :integer
 #  cs                       :integer
+#  alias                    :string
 #
 # Indexes
 #
@@ -387,7 +388,7 @@ class Batter < ActiveRecord::Base
     end
     morestuff = []
     for i in 1..pages
-      morestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=1&season=2015&month=14&season1=2015&ind=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=1&season=2015&month=14&season1=2015&ind=0&page=' + i.to_s + '_30').search(".rgAltRow")
+      morestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=2_30' + i.to_s + '_30').search(".rgAltRow")
     end
     moredata = morestuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact

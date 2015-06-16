@@ -10,6 +10,8 @@
 #  visiting_pitcher_id :integer
 #  home_pitcher_id     :integer
 #  day                 :date
+#  pin_vis_close       :integer
+#  pin_home_close      :integer
 #
 # Indexes
 #
