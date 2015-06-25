@@ -34,7 +34,8 @@
 #  xfip           :float
 #  steamer_whip   :float
 #  era            :float
-#  alias          :string
+#  fd_alias       :string
+#  fg_alias       :string
 #
 # Indexes
 #
@@ -73,6 +74,9 @@ class Pitcher < ActiveRecord::Base
     not_found = []
     data.each do |x|
       pitcher = Pitcher.find_by(name: x[1][0])
+      if pitcher.nil?
+        pitcher = Pitcher.find_by(fg_alias: x[1][0])
+      end
       if pitcher.nil?
         not_found << x[1][0] + " " + x[10][0] + " " + x[11][0] + " " + x[12][0] + " " + x[13][0]
       else
@@ -204,7 +208,7 @@ class Pitcher < ActiveRecord::Base
   end
 
   def opponent
-    game = Matchup.find_by("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id)
+    game = Matchup.where("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id).where(day: Date.today).first
     return if game.nil?
     if game.visitor_id == self.team_id
       opp_team = "@ " + game.home.name

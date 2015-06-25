@@ -76,7 +76,8 @@
 #  hbps                     :integer
 #  sb                       :integer
 #  cs                       :integer
-#  alias                    :string
+#  fd_alias                 :string
+#  fg_alias                 :string
 #
 # Indexes
 #
@@ -316,12 +317,12 @@ class Batter < ActiveRecord::Base
     data.flatten.each do |x|
       if x[-1] == "P"
       else
-        b = Batter.find_by(name: x.split[1..2].join(" "))
+        b = Batter.find_by(name: x[2..-1].split("(")[0][1..-2])
         unless b.nil?
           b.lineup_spot = x[0]
           b.save
         else
-          adds << x.split[1..2].join(" ")
+          adds << x[2..-1].split("(")[0][1..-2]
         end
       end
     end
@@ -339,11 +340,17 @@ class Batter < ActiveRecord::Base
     data.each do |x|
       if x[0].join(",") == "P"
         p = Pitcher.find_by(name: (x[1].join(","))[0...-1])
+        if p.nil?
+          p = Pitcher.find_by(fd_alias: (x[1].join(","))[0...-1])
+        end
         unless p.nil?
           p.update_attributes(fd_salary: (x[5].join(","))[1..-1].gsub(",", "").to_i, fd_season_ppg: x[2].join(","))
         end
       else
         b = Batter.find_by(name: x[1].join(","))
+        if b.nil?
+          b = Batter.find_by(fd_alias: x[1].join(","))
+        end
         unless b.nil?
           b.update_attributes(position: x[0].join(","), fd_salary: (x[5].join(","))[1..-1].gsub(",", "").to_i, fd_season_ppg: x[2].join(","))
           b.get_pitcher_id
@@ -381,7 +388,15 @@ class Batter < ActiveRecord::Base
     data.each do |x|
       batter = Batter.find_by(name: x[1][0])
       if batter.nil?
-        not_found << x[1][0]
+        batter = Batter.find_by(fg_alias: x[1][0])
+        if batter.nil?
+          pitcher = Pitcher.find_by(name: x[1][0])
+          if pitcher.nil?
+            not_found << x[1][0]
+          end
+        end
+      end
+      if batter.nil?
       else
         batter.update_attributes(pa_lhp: x[5][0], ab_lhp: x[4][0], hits_lhp: x[6][0], doubles_lhp: x[8][0], triples_lhp: x[9][0], homers_lhp: x[10][0], rbis_lhp: x[12][0], walks_lhp: x[13][0], hbps_lhp: x[16][0] )
       end
@@ -396,7 +411,15 @@ class Batter < ActiveRecord::Base
     moredata.each do |x|
       batter = Batter.find_by(name: x[1][0])
       if batter.nil?
-        not_found << x[1][0]
+        batter = Batter.find_by(fg_alias: x[1][0])
+        if batter.nil?
+          pitcher = Pitcher.find_by(name: x[1][0])
+          if pitcher.nil?
+            not_found << x[1][0]
+          end
+        end
+      end
+      if batter.nil?
       else
         batter.update_attributes(pa_rhp: x[5][0], ab_rhp: x[4][0], hits_rhp: x[6][0], doubles_rhp: x[8][0], triples_rhp: x[9][0], homers_rhp: x[10][0], rbis_rhp: x[12][0], walks_rhp: x[13][0], hbps_rhp: x[16][0] )
       end
@@ -411,7 +434,15 @@ class Batter < ActiveRecord::Base
     evenmoredata.each do |x|
       batter = Batter.find_by(name: x[1][0])
       if batter.nil?
-        not_found << x[1][0]
+        batter = Batter.find_by(fg_alias: x[1][0])
+        if batter.nil?
+          pitcher = Pitcher.find_by(name: x[1][0])
+          if pitcher.nil?
+            not_found << x[1][0]
+          end
+        end
+      end
+      if batter.nil?
       else
         batter.update_attributes(pa: x[5][0], ab: x[4][0], hits: x[6][0], doubles: x[8][0], triples: x[9][0], homers: x[10][0], runs: x[11][0], rbis: x[12][0], walks: x[13][0], hbps: x[16][0], sb: x[20][0], cs: x[21][0])
       end
@@ -447,7 +478,7 @@ class Batter < ActiveRecord::Base
   end
 
   def get_pitcher_id
-    game = Matchup.find_by("visitor_id in (?) or home_id in (?) and day = ?", self.team_id, self.team_id, Date.today)
+    game = Matchup.where("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id).where(day: Date.today).first
     return if game.nil?
     if game.visitor_id == self.team_id
       opp_team_id = game.home_id

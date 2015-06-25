@@ -67,7 +67,11 @@ class Matchup < ActiveRecord::Base
   end
 
   def pf_adj n
-    (n * self.home.park_factor).round(2)
+    if n.blank?
+      100
+    else
+      (n * self.home.park_factor).round(2)
+    end
   end
 
   def self.decimal_to_moneyline decimal
@@ -99,6 +103,7 @@ class Matchup < ActiveRecord::Base
     user_line = UserLine.find_by(user_id: user.id, matchup_id: self.id)
     if user_line.blank?
       old_matchups = Matchup.where("visiting_pitcher_id = ? or home_pitcher_id = ?", self.visiting_pitcher_id, self.visiting_pitcher_id)
+      return if old_matchups.count == 1
       old_line = UserLine.find_by(matchup_id: old_matchups[-2].id, user_id: user.id)
       return if old_line.blank?
       if old_matchups[-2].visiting_pitcher == self.visiting_pitcher
@@ -132,6 +137,7 @@ class Matchup < ActiveRecord::Base
     user_line = UserLine.find_by(user_id: user.id, matchup_id: self.id)
     if user_line.blank?
       old_matchups = Matchup.where("visiting_pitcher_id = ? or home_pitcher_id = ?", self.home_pitcher_id, self.home_pitcher_id)
+      return if old_matchups.count == 1
       old_line = UserLine.find_by(matchup_id: old_matchups[-2].id, user_id: user.id)
       return if old_line.blank?
       if old_matchups[-2].visiting_pitcher == self.home_pitcher
