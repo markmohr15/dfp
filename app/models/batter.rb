@@ -109,7 +109,7 @@ class Batter < ActiveRecord::Base
   end
 
   def park_factor
-    game = Matchup.find_by("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id)
+    game = Matchup.where("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id).where(day: Date.today).first
     if game.nil? || self.pitcher.nil?
       1
     elsif game.visitor_id == self.team_id
@@ -257,9 +257,26 @@ class Batter < ActiveRecord::Base
   end
 
   def zips_fd_pts_per_game_park_neutral
-    season_pts = self.zips_hits * 1 + self.zips_doubles * 1 + self.zips_triples * 2 + self.zips_homers * 3 + self.zips_rbis * 1 +
-     self.zips_runs * 1 + self.zips_walks * 1 + self.zips_sb * 2 + self.zips_hbps * 1 + (self.zips_ab - self.zips_hits) * -0.25
-    ppg = season_pts / self.zips_pa * self.papg
+    ppg = 0
+    unless self.zips_pa_rhp.blank?
+      if self.pitcher.throws == "right"
+        season_pts = self.zips_hits_rhp * 1 + self.zips_doubles_rhp * 1 + self.zips_triples_rhp * 2 + self.zips_homers_rhp * 3 + self.zips_rbis_rhp * 1 +
+        + self.zips_walks_rhp * 1 + self.zips_hbps_rhp * 1 + (self.zips_ab_rhp - self.zips_hits_rhp) * -0.25
+        ppg = season_pts / self.zips_pa_rhp.to_f * self.papg * 2 / 3
+      else
+        season_pts = self.zips_hits_lhp * 1 + self.zips_doubles_lhp * 1 + self.zips_triples_lhp * 2 + self.zips_homers_lhp * 3 + self.zips_rbis_lhp * 1 +
+        + self.zips_walks_lhp * 1 + self.zips_hbps_lhp * 1 + (self.zips_ab_lhp - self.zips_hits_lhp) * -0.25
+        ppg = season_pts / self.zips_pa_rhp.to_f * self.papg * 2 / 3
+      end
+      ppg += (self.zips_runs * 1 + self.zips_sb * 2) / self.zips_pa.to_f * self.papg
+      season_pts = self.zips_hits * 1 + self.zips_doubles * 1 + self.zips_triples * 2 + self.zips_homers * 3 + self.zips_rbis * 1 +
+       self.zips_runs * 1 + self.zips_walks * 1 + self.zips_sb * 2 + self.zips_hbps * 1 + (self.zips_ab - self.zips_hits) * -0.25
+      ppg += season_pts / self.zips_pa.to_f * self.papg / 3
+    else
+      season_pts = self.zips_hits * 1 + self.zips_doubles * 1 + self.zips_triples * 2 + self.zips_homers * 3 + self.zips_rbis * 1 +
+       self.zips_runs * 1 + self.zips_walks * 1 + self.zips_sb * 2 + self.zips_hbps * 1 + (self.zips_ab - self.zips_hits) * -0.25
+      ppg += season_pts / self.zips_pa.to_f * self.papg
+    end
     if self.team.park_factor > 1
       ppg = ppg / ((self.team.park_factor - 1) / 2 + 1)
     else
@@ -296,7 +313,7 @@ class Batter < ActiveRecord::Base
     if self.pitcher.blank?
       self.zips_adj_fd_ppg = 0
     else
-      self.zips_adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 19.072 * self.park_factor * self.zips_fd_pts_per_game_park_adj).round(2)
+      self.zips_adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 19.072 * self.zips_fd_pts_per_game_park_adj).round(2)
     end
     if self.team.home?
       self.zips_adj_fd_ppg *= 1.0337
@@ -342,6 +359,10 @@ class Batter < ActiveRecord::Base
         p = Pitcher.find_by(name: (x[1].join(","))[0...-1])
         if p.nil?
           p = Pitcher.find_by(fd_alias: (x[1].join(","))[0...-1])
+          if p.nil? && (x[1].join(",")).last(3) != "DTD"
+            #binding.pry
+            p = Pitcher.find_by(name: (x[1].join(","))[0...-3])
+          end
         end
         unless p.nil?
           p.update_attributes(fd_salary: (x[5].join(","))[1..-1].gsub(",", "").to_i, fd_season_ppg: x[2].join(","))
@@ -379,7 +400,7 @@ class Batter < ActiveRecord::Base
     agent = Mechanize.new
     stuff = []
     for i in 1..pages
-      stuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
+      stuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
     end
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
@@ -403,7 +424,7 @@ class Batter < ActiveRecord::Base
     end
     morestuff = []
     for i in 1..pages
-      morestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=2_30' + i.to_s + '_30').search(".rgAltRow")
+      morestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=2_30' + i.to_s + '_30').search(".rgAltRow")
     end
     moredata = morestuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
@@ -481,11 +502,10 @@ class Batter < ActiveRecord::Base
     game = Matchup.where("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id).where(day: Date.today).first
     return if game.nil?
     if game.visitor_id == self.team_id
-      opp_team_id = game.home_id
-    elsif game.home_id == self.team_id
-      opp_team_id = game.visitor_id
+      self.pitcher = game.home_pitcher
+    else
+      self.pitcher = game.visiting_pitcher
     end
-    self.pitcher = Pitcher.find_by("team_id in (?) and fd_salary > ?", opp_team_id, 0)
     self.save
   end
 
