@@ -2,16 +2,16 @@
 #
 # Table name: teams
 #
-#  id             :integer          not null, primary key
-#  name           :string
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  fd_park_factor :float
-#  park_factor    :float
-#  base_runs      :float
-#  runs_per_nine  :float
-#  games          :integer
-#  alias          :string
+#  id                 :integer          not null, primary key
+#  name               :string
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  fd_park_factor     :float
+#  park_factor        :float
+#  base_runs_per_nine :float
+#  runs_per_nine      :float
+#  games              :integer
+#  alias              :string
 #
 
 class Team < ActiveRecord::Base
@@ -289,21 +289,21 @@ class Team < ActiveRecord::Base
     earned_runs.round(2)
   end
 
-  def set_base_runs ab, pa, hits, singles, doubles, triples, hr, bb, ibb, hbp, sb, cs, gdp
+  def set_base_runs_per_nine ab, pa, hits, singles, doubles, triples, hr, bb, ibb, hbp, sb, cs, gdp
     tb = singles + doubles * 2 + triples * 3 + hr * 4
     a = hits + bb + hbp - hr - 0.5 * ibb
     b = (1.4 * tb - 0.6 * hits - 3 * hr + 0.1 * (bb + hbp - ibb) + 0.9 * (sb - cs - gdp)) * 1.1
     c = ab - hits + cs + gdp
     d = hr
-    self.base_runs = ((a * b) / (b + c) + d).round(2)
+    self.base_runs_per_nine = (((a * b) / (b + c) + d) / c * 27 * 0.97).round(2)
   end
 
   def runs_per_nine_inn runs, ab, hits, cs, gdp
     self.runs_per_nine = (runs / (ab - hits + cs + gdp).to_f * 27).round(2)
   end
 
-  def bsr_per_game
-    (self.base_runs / self.games.to_f).round(2)
+  def runs_bsr_diff
+    (self.runs_per_nine - self.base_runs_per_nine).round(2)
   end
 
   def self.get_games date   #format - 2015-05-20
@@ -333,7 +333,7 @@ class Team < ActiveRecord::Base
     end.compact
     data.each do |x|
       team = Team.find_by name: x[1][0]
-      team.set_base_runs (x[3][0]).to_i, (x[4][0]).to_i, (x[5][0]).to_i, x[6][0].to_i, x[7][0].to_i, x[8][0].to_i, x[9][0].to_i, x[12][0].to_i, x[13][0].to_i, x[15][0].to_i, x[19][0].to_i, x[20][0].to_i, x[18][0].to_i
+      team.set_base_runs_per_nine x[3][0].to_i, x[4][0].to_i, x[5][0].to_i, x[6][0].to_i, x[7][0].to_i, x[8][0].to_i, x[9][0].to_i, x[12][0].to_i, x[13][0].to_i, x[15][0].to_i, x[19][0].to_i, x[20][0].to_i, x[18][0].to_i
       team.runs_per_nine_inn x[10][0].to_i, x[3][0].to_i, x[5][0].to_i, x[20][0].to_i, x[18][0].to_i
       team.save
     end

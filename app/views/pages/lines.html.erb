@@ -8,7 +8,7 @@
       <th> Date </th>
       <th> Teams </th>
       <th> Runs/9 </th>
-      <th> BsR/gm </th>
+      <th> BsR/9 </th>
       <th> Park Factor </th>
       <th> ERA
       <th> SIERA </th>
@@ -37,7 +37,7 @@
       <td> </td>
       <td> <%= matchup.visitor.name + " (" + matchup.visiting_pitcher.name + ")" %> </td>
       <td> <%= matchup.visitor.runs_per_nine %> </td>
-      <td> <%= matchup.visitor.bsr_per_game %> </td>
+      <td> <%= matchup.visitor.base_runs_per_nine %> </td>
       <td> <%= matchup.visitor.park_factor %> </td>
        <td> <%= matchup.visiting_pitcher.era %> </td>
       <td> <%= matchup.visiting_pitcher.sierra %> </td>
@@ -62,7 +62,7 @@
     <td> <%= matchup.day.strftime("%_m/%-d") %> </td>
     <td> <%= matchup.home.name + " (" + matchup.home_pitcher.name + ")" %> </td>
       <td> <%= matchup.home.runs_per_nine %> </td>
-      <td> <%= matchup.home.bsr_per_game %> </td>
+      <td> <%= matchup.home.base_runs_per_nine %> </td>
       <td> <%= matchup.home.park_factor %> </td>
       <td> <%= matchup.home_pitcher.era %> </td>
       <td> <%= matchup.home_pitcher.sierra %> </td>

@@ -213,8 +213,12 @@ class Batter < ActiveRecord::Base
 
   def self.ballpark
     agent = Mechanize.new
-    stuff = agent.get("http://www.baseball-reference.com/leagues/split.cgi?t=b&year=2013&lg=MLB#lineu").search('tr')
+    stuff = agent.get("http://www.baseball-reference.com/leagues/split.cgi?t=b&year=2014&lg=MLB#lineu").search('tr')
     data = stuff.map do |node|
+      node.children.map{|n| [n.text.strip] if n.elem? }.compact
+    end
+    morestuff = agent.get("http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2014&month=16&season1=&ind=0&team=0,ts&rost=&age=0&filter=&players=0").search(".rgRow") + agent.get("http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2014&month=16&season1=&ind=0&team=0,ts&rost=&age=0&filter=&players=0").search(".rgAltRow")
+    moredata = morestuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end
     parks = []
@@ -246,14 +250,25 @@ class Batter < ActiveRecord::Base
     parks << data[282]
     parks << data[283]
     parks << data[284]
-    parks << data[285]
     parks << data[286]
     parks << data[287]
     parks.each do |x|
-      season_pts = x[6][0].to_i * 1 + x[7][0].to_i * 1 + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[10][0].to_i * 1 +
-      x[5][0].to_i * 1 + x[13][0].to_i * 1 + x[11][0].to_i * 2 + x[21][0].to_i * 1 + (x[4][0].to_i - x[6][0].to_i) * -0.25
-      puts x[0][0].to_s + " " + (season_pts / 81.0 / 38.1437).to_s
+      if x[0][0] == "ARI-Chase Field"
+        home_fdpg = (x[5][0].to_i + x[6][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[10][0].to_i +
+        x[11][0].to_i * 2 + x[13][0].to_i + x[21][0].to_i + (x[4][0].to_i - x[6][0].to_i) * -0.25) / 77.0
+      else
+        home_fdpg = (x[5][0].to_i + x[6][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[10][0].to_i +
+        x[11][0].to_i * 2 + x[13][0].to_i + x[21][0].to_i + (x[4][0].to_i - x[6][0].to_i) * -0.25) / 81.0
+      end
+      puts x[0][0].to_s + " " + home_fdpg.to_s
     end
+    moredata.each do |x|
+      away_fdopg = (x[5][0].to_i + x[10][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[11][0].to_i +
+      x[19][0].to_i * 2 + x[12][0].to_i + x[15][0].to_i + (x[3][0].to_i - x[5][0].to_i) * -0.25) / 81.0
+      puts x[1][0] + " " + away_fdopg.to_s
+    end
+    counter = 0
+    true
   end
 
   def zips_fd_pts_per_game_park_neutral
@@ -360,7 +375,6 @@ class Batter < ActiveRecord::Base
         if p.nil?
           p = Pitcher.find_by(fd_alias: (x[1].join(","))[0...-1])
           if p.nil? && (x[1].join(",")).last(3) != "DTD"
-            #binding.pry
             p = Pitcher.find_by(name: (x[1].join(","))[0...-3])
           end
         end
@@ -400,12 +414,15 @@ class Batter < ActiveRecord::Base
     agent = Mechanize.new
     stuff = []
     for i in 1..pages
-      stuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
+      stuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=13&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
     end
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end.compact
     not_found = []
+    lhp_counter = 0
+    rhp_counter = 0
+    total_counter = 0
     data.each do |x|
       batter = Batter.find_by(name: x[1][0])
       if batter.nil?
@@ -419,12 +436,13 @@ class Batter < ActiveRecord::Base
       end
       if batter.nil?
       else
+        lhp_counter += 1
         batter.update_attributes(pa_lhp: x[5][0], ab_lhp: x[4][0], hits_lhp: x[6][0], doubles_lhp: x[8][0], triples_lhp: x[9][0], homers_lhp: x[10][0], rbis_lhp: x[12][0], walks_lhp: x[13][0], hbps_lhp: x[16][0] )
       end
     end
     morestuff = []
     for i in 1..pages
-      morestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=2_30' + i.to_s + '_30').search(".rgAltRow")
+      morestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=14&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
     end
     moredata = morestuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
@@ -442,12 +460,13 @@ class Batter < ActiveRecord::Base
       end
       if batter.nil?
       else
+        rhp_counter += 1
         batter.update_attributes(pa_rhp: x[5][0], ab_rhp: x[4][0], hits_rhp: x[6][0], doubles_rhp: x[8][0], triples_rhp: x[9][0], homers_rhp: x[10][0], rbis_rhp: x[12][0], walks_rhp: x[13][0], hbps_rhp: x[16][0] )
       end
     end
     evenmorestuff = []
     for i in 1..pages
-      evenmorestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
+      evenmorestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=8&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=8&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
     end
     evenmoredata = evenmorestuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
@@ -465,9 +484,13 @@ class Batter < ActiveRecord::Base
       end
       if batter.nil?
       else
+        total_counter +=1
         batter.update_attributes(pa: x[5][0], ab: x[4][0], hits: x[6][0], doubles: x[8][0], triples: x[9][0], homers: x[10][0], runs: x[11][0], rbis: x[12][0], walks: x[13][0], hbps: x[16][0], sb: x[20][0], cs: x[21][0])
       end
     end
+    not_found << lhp_counter
+    not_found << rhp_counter
+    not_found << total_counter
     not_found.uniq
   end
 

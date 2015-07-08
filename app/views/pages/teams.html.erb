@@ -1,0 +1,26 @@
+<div class="container padding-large-horizontal">
+
+<h2> Teams </h2>
+
+  <table class="table table-responsive table-striped">
+    <thead>
+    <tr>
+      <th> Team </th>
+      <th> Runs/9 </th>
+      <th> BsR/9 </th>
+      <th> Diff </th>
+      <th> Park Factor </th>
+    </tr>
+    </thead>
+
+    <% @teams.each do |team| %>
+      <tr>
+        <td> <%= team.name %> </td>
+        <td> <%= team.runs_per_nine %> </td>
+        <td> <%= team.base_runs_per_nine %> </td>
+        <td> <%= team.runs_bsr_diff %> </td>
+        <td> <%= team.park_factor %> </td>
+      </tr>
+    <% end %>
+  </table>
+</div>
