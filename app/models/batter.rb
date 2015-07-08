@@ -90,7 +90,7 @@ class Batter < ActiveRecord::Base
   belongs_to :pitcher
   belongs_to :team
 
-  #before_save :set_zips_adj_fd_ppg, :remove_from_lineup
+  before_save :set_zips_adj_fd_ppg, :remove_from_lineup
 
   def display_fd_salary
     if self.fd_salary.blank?
