@@ -369,6 +369,7 @@ class Batter < ActiveRecord::Base
     end.compact
     Batter.update_all fd_salary: nil
     Pitcher.update_all fd_salary: nil
+    binding.pry
     data.each do |x|
       if x[0].join(",") == "P"
         p = Pitcher.find_by(name: (x[1].join(","))[0...-1])
@@ -466,7 +467,7 @@ class Batter < ActiveRecord::Base
     end
     evenmorestuff = []
     for i in 1..pages
-      evenmorestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=8&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=8&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
+      evenmorestuff += agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgRow") + agent.get('http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2015&month=0&season1=2015&ind=0&team=0&rost=0&age=0&filter=&players=0&page=' + i.to_s + '_30').search(".rgAltRow")
     end
     evenmoredata = evenmorestuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
