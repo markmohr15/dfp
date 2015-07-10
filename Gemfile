@@ -36,5 +36,7 @@ group :development, :test do
   gem "factory_girl"
   gem "database_cleaner"
   gem "pry"
+
 end
 
+gem "curb"

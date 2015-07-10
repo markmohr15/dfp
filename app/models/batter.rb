@@ -361,34 +361,30 @@ class Batter < ActiveRecord::Base
     adds
   end
 
-  def self.get_fd_data url
-    agent = Mechanize.new
-    stuff = agent.get(url).search(".pR")
-    data = stuff.map do |node|
-      node.children.map{|n| [n.text.strip] if n.elem? }.compact
-    end.compact
+  def self.get_fd_data game
     Batter.update_all fd_salary: nil
     Pitcher.update_all fd_salary: nil
-    binding.pry
-    data.each do |x|
-      if x[0].join(",") == "P"
-        p = Pitcher.find_by(name: (x[1].join(","))[0...-1])
+    game_id = game
+    curl_req = `curl 'https://api.fanduel.com/fixture-lists/#{game_id}/players' -H 'Origin: https://www.fanduel.com' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: en-US,en;q=0.8' -H 'Authorization: Basic N2U3ODNmMTE4OTIzYzE2NzVjNWZhYWFmZTYwYTc5ZmM6' -H 'Accept: application/json, text/plain, */*' -H 'Cache-Control: max-age=0' -H 'X-Auth-Token: 0aaafb0a611f4c0f1cebeb642f824e2cbff48f787959b7892fa61425981c5189' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.132 Safari/537.36' -H 'Connection: keep-alive' -H 'Referer: https://www.fanduel.com/games/12627/contests/12627-13656597/enter' --compressed`
+    my_hash = JSON.parse(curl_req)
+    players = my_hash["players"]
+    players.each do |x|
+      #binding.pry
+      if x["position"] == "P" && x["probable_pitcher"] == true
+        p = Pitcher.find_by(name: x["first_name"] + " " + x["last_name"])
         if p.nil?
-          p = Pitcher.find_by(fd_alias: (x[1].join(","))[0...-1])
-          if p.nil? && (x[1].join(",")).last(3) != "DTD"
-            p = Pitcher.find_by(name: (x[1].join(","))[0...-3])
-          end
+          p = Pitcher.find_by(fd_alias: x["first_name"] + " " + x["last_name"])
         end
         unless p.nil?
-          p.update_attributes(fd_salary: (x[5].join(","))[1..-1].gsub(",", "").to_i, fd_season_ppg: x[2].join(","))
+          p.update_attributes(fd_salary: x["salary"], fd_season_ppg: x["fppg"].round(1))
         end
       else
-        b = Batter.find_by(name: x[1].join(","))
+        b = Batter.find_by(name: x["first_name"] + " " + x["last_name"])
         if b.nil?
-          b = Batter.find_by(fd_alias: x[1].join(","))
+          b = Batter.find_by(fd_alias: x["first_name"] + " " + x["last_name"])
         end
         unless b.nil?
-          b.update_attributes(position: x[0].join(","), fd_salary: (x[5].join(","))[1..-1].gsub(",", "").to_i, fd_season_ppg: x[2].join(","))
+          b.update_attributes(position: x["position"], fd_salary: x["salary"], fd_season_ppg: x["fppg"].round(1))
           b.get_pitcher_id
         end
       end
