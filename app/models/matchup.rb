@@ -174,6 +174,29 @@ class Matchup < ActiveRecord::Base
     end
   end
 
+  def no_vig_close
+    return if self.pin_vis_close.blank?
+    overround = 0
+    if self.pin_vis_close < 0
+      overround += self.pin_vis_close * -1.0 / (self.pin_vis_close * -1.0 + 100)
+    else
+      overround += 100.0 / (self.pin_vis_close + 100)
+    end
+    if self.pin_home_close < 0
+      home_odds = self.pin_home_close * -1.0 / (self.pin_home_close * -1.0 + 100)
+      overround += home_odds
+    else
+      home_odds = 100.0 / (self.pin_home_close + 100)
+      overround += home_odds
+    end
+    home_win_pct = home_odds / overround
+    if home_win_pct > 0.5
+      (home_win_pct / (1 - home_win_pct) * -100).round
+    else
+      ((1 - home_win_pct) / home_win_pct * 100).round
+    end
+  end
+
   def self.get_pitchers date # format 2015/06/16
     agent = Mechanize.new
     stuff = agent.get("http://mlb.mlb.com/news/probable_pitchers/?c_id=mlb&date=" + date).search(".module")

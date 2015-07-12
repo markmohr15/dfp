@@ -8,6 +8,9 @@ ActiveAdmin.register Matchup do
     column :day
     column :pin_vis_close
     column :pin_home_close
+    column "No Vig (home)" do |matchup|
+      matchup.no_vig_close
+    end
     actions
   end
 
@@ -20,6 +23,9 @@ ActiveAdmin.register Matchup do
       row :day
       row :pin_vis_close
       row :pin_home_close
+      row "No Vig (home)" do |matchup|
+        matchup.no_vig_close
+      end
     end
   end
 
