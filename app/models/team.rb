@@ -20,6 +20,7 @@ class Team < ActiveRecord::Base
   has_many :matchups_as_home, class_name: "Matchup", foreign_key: "home_id"
   has_many :batters
   has_many :pitchers
+  has_many :wagers
 
   accepts_nested_attributes_for :batters
   accepts_nested_attributes_for :pitchers

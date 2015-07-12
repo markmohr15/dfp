@@ -25,6 +25,7 @@ class Matchup < ActiveRecord::Base
   belongs_to :home, class_name: "Team"
   belongs_to :visiting_pitcher, class_name: "Pitcher"
   belongs_to :home_pitcher, class_name: "Pitcher"
+  has_many :wagers
 
   def zips_tl_line
     visitor_off = self.pf_adj(self.visitor.zips_true_lineup_offense(self.home_pitcher.name))
