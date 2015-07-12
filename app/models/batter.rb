@@ -389,6 +389,7 @@ class Batter < ActiveRecord::Base
         end
       end
     end
+    true
   end
 
   def self.get_zips_batter_data  #mass import
