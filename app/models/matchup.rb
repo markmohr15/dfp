@@ -15,8 +15,10 @@
 #
 # Indexes
 #
-#  index_matchups_on_home_id     (home_id)
-#  index_matchups_on_visitor_id  (visitor_id)
+#  index_matchups_on_home_id              (home_id)
+#  index_matchups_on_home_pitcher_id      (home_pitcher_id)
+#  index_matchups_on_visiting_pitcher_id  (visiting_pitcher_id)
+#  index_matchups_on_visitor_id           (visitor_id)
 #
 
 class Matchup < ActiveRecord::Base

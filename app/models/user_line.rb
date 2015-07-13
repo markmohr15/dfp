@@ -13,6 +13,11 @@
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
+# Indexes
+#
+#  index_user_lines_on_matchup_id  (matchup_id)
+#  index_user_lines_on_user_id     (user_id)
+#
 
 class UserLine < ActiveRecord::Base
   belongs_to :user
