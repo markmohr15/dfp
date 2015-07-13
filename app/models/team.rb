@@ -272,7 +272,7 @@ class Team < ActiveRecord::Base
     starter = Pitcher.find_by(name: sp)
     return if starter.steamer_ip.blank?
     starter_innings = starter.steamer_ip / starter.steamer_games.to_f
-    relievers = Pitcher.where(team_id: self.id, reliever: true)
+    relievers = Pitcher.where(team_id: self.id, reliever: true).where.not(steamer_games: nil)
     earned_runs = starter.steamer_er / starter.steamer_ip.to_f * starter_innings
     er_counter = 0
     ip_counter = 0
