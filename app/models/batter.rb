@@ -119,6 +119,17 @@ class Batter < ActiveRecord::Base
     end
   end
 
+  def fd_park_factor
+    game = Matchup.where("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id).where(day: Date.today).first
+    if game.nil? || self.pitcher.nil?
+      1
+    elsif game.visitor_id == self.team_id
+      self.pitcher.team.fd_park_factor
+    elsif game.home_id == self.team_id
+      self.team.fd_park_factor
+    end
+  end
+
   def papg #plate app/game
     case self.lineup_spot
     when 1
@@ -213,15 +224,16 @@ class Batter < ActiveRecord::Base
 
   def self.ballpark
     agent = Mechanize.new
-    stuff = agent.get("http://www.baseball-reference.com/leagues/split.cgi?t=b&year=2014&lg=MLB#lineu").search('tr')
+    stuff = agent.get("http://www.baseball-reference.com/leagues/split.cgi?t=b&year=2013&lg=MLB#lineu").search('tr')
     data = stuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end
-    morestuff = agent.get("http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2014&month=16&season1=&ind=0&team=0,ts&rost=&age=0&filter=&players=0").search(".rgRow") + agent.get("http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2014&month=16&season1=&ind=0&team=0,ts&rost=&age=0&filter=&players=0").search(".rgAltRow")
+    morestuff = agent.get("http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2013&month=16&season1=&ind=0&team=0,ts&rost=&age=0&filter=&players=0").search(".rgRow") + agent.get("http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=0&season=2013&month=16&season1=&ind=0&team=0,ts&rost=&age=0&filter=&players=0").search(".rgAltRow")
     moredata = morestuff.map do |node|
       node.children.map{|n| [n.text.strip] if n.elem? }.compact
     end
     parks = []
+    parks << data[256]
     parks << data[257]
     parks << data[258]
     parks << data[259]
@@ -250,12 +262,15 @@ class Batter < ActiveRecord::Base
     parks << data[282]
     parks << data[283]
     parks << data[284]
-    parks << data[286]
-    parks << data[287]
+    parks << data[285]
+    counter = 0
     parks.each do |x|
-      if x[0][0] == "ARI-Chase Field"
+      if x[0][0] == "TEX-Rangers Bpk" || x[0][0] == "SFG-AT&T Pk"
         home_fdpg = (x[5][0].to_i + x[6][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[10][0].to_i +
-        x[11][0].to_i * 2 + x[13][0].to_i + x[21][0].to_i + (x[4][0].to_i - x[6][0].to_i) * -0.25) / 77.0
+        x[11][0].to_i * 2 + x[13][0].to_i + x[21][0].to_i + (x[4][0].to_i - x[6][0].to_i) * -0.25) / 82.0
+      elsif x[0][0] == "CIN-GreatAmer BP"
+        home_fdpg = (x[5][0].to_i + x[6][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[10][0].to_i +
+        x[11][0].to_i * 2 + x[13][0].to_i + x[21][0].to_i + (x[4][0].to_i - x[6][0].to_i) * -0.25) / 80.0
       else
         home_fdpg = (x[5][0].to_i + x[6][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[10][0].to_i +
         x[11][0].to_i * 2 + x[13][0].to_i + x[21][0].to_i + (x[4][0].to_i - x[6][0].to_i) * -0.25) / 81.0
@@ -263,11 +278,24 @@ class Batter < ActiveRecord::Base
       puts x[0][0].to_s + " " + home_fdpg.to_s
     end
     moredata.each do |x|
-      away_fdopg = (x[5][0].to_i + x[10][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[11][0].to_i +
-      x[19][0].to_i * 2 + x[12][0].to_i + x[15][0].to_i + (x[3][0].to_i - x[5][0].to_i) * -0.25) / 81.0
-      puts x[1][0] + " " + away_fdopg.to_s
+      if x[1][0] == "Reds"
+        away_fdopg = (x[5][0].to_i + x[10][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[11][0].to_i +
+        x[19][0].to_i * 2 + x[12][0].to_i + x[15][0].to_i + (x[3][0].to_i - x[5][0].to_i) * -0.25) / 82.0
+        puts x[1][0] + " " + away_fdopg.to_s
+      elsif x[1][0] == "Giants"
+        away_fdopg = (x[5][0].to_i + x[10][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[11][0].to_i +
+        x[19][0].to_i * 2 + x[12][0].to_i + x[15][0].to_i + (x[3][0].to_i - x[5][0].to_i) * -0.25) / 80.0
+        puts x[1][0] + " " + away_fdopg.to_s
+      elsif x[1][0] == "Rays"
+        away_fdopg = (x[5][0].to_i + x[10][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[11][0].to_i +
+        x[19][0].to_i * 2 + x[12][0].to_i + x[15][0].to_i + (x[3][0].to_i - x[5][0].to_i) * -0.25) / 82.0
+        puts x[1][0] + " " + away_fdopg.to_s
+      else
+        away_fdopg = (x[5][0].to_i + x[10][0].to_i + x[7][0].to_i + x[8][0].to_i * 2 + x[9][0].to_i * 3 + x[11][0].to_i +
+        x[19][0].to_i * 2 + x[12][0].to_i + x[15][0].to_i + (x[3][0].to_i - x[5][0].to_i) * -0.25) / 81.0
+        puts x[1][0] + " " + away_fdopg.to_s
+      end
     end
-    counter = 0
     true
   end
 
@@ -301,7 +329,7 @@ class Batter < ActiveRecord::Base
   end
 
   def zips_fd_pts_per_game_park_adj
-    (self.zips_fd_pts_per_game_park_neutral * self.park_factor).round(2)
+    (self.zips_fd_pts_per_game_park_neutral * self.fd_park_factor).round(2)
   end
 
   def ytd_fd_pts_per_1000_dollars

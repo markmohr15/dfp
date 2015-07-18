@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
 
-  def home
+  def fanduel
     @catchers = Batter.catchers_sorted_by_adj_fd_pts_per_1000_dollars
     @firstbasemen = Batter.firstbasemen_sorted_by_adj_fd_pts_per_1000_dollars
     @secondbasemen = Batter.secondbasemen_sorted_by_adj_fd_pts_per_1000_dollars
