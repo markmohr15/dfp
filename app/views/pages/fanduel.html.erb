@@ -1,6 +1,10 @@
 <div class="container padding-large-horizontal">
   <div class ="col-md-10">
 
+<%= form_tag fanduel_path, method: :get do %>
+
+  <%= text_field_tag :fgn, nil, value: params[:fgn], placeholder: "5 digit FanDuel Game #" %>
+
 <h2> Pitchers </h2>
 
 <table class="table table-responsive table-striped">
@@ -18,8 +22,6 @@
   <th> Select </th>
 </tr>
 </thead>
-
-<%= form_tag update_players_path, method: :put do %>
 
 <% @pitchers.each do |pitcher| %>
   <tr>
