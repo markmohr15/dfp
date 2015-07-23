@@ -12,6 +12,7 @@
 #  runs_per_nine      :float
 #  games              :integer
 #  alias              :string
+#  dk_park_factor     :float
 #
 
 class Team < ActiveRecord::Base

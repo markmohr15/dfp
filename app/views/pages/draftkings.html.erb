@@ -1,9 +1,9 @@
 <div class="container padding-large-horizontal">
   <div class ="col-md-10">
 
-<%= form_tag fanduel_path, method: :get do %>
+<%= form_tag draftkings_path, method: :get do %>
 
-  <%= text_field_tag :fgn, nil, value: params[:fgn], placeholder: "5 digit FanDuel Game #" %>
+  <%= text_field_tag :dgn, nil, value: params[:dgn], placeholder: "4 digit DK draftGroupId" %>
   <%= submit_tag %>
 
 <h2> Pitchers </h2>
@@ -14,9 +14,9 @@
   <th> Player </th>
   <th> Team </th>
   <th> Position </th>
-  <th> FD Salary </th>
-  <th> FD Season Pts/Game </th>
-  <th> YTD FD Pts/$1000 </th>
+  <th> DK Salary </th>
+  <th> DK Season Pts/Game </th>
+  <th> YTD DK Pts/$1000 </th>
   <th> Exp Pts/Game </th>
   <th> Pts/$ </th>
   <th> Opponent </th>
@@ -29,11 +29,11 @@
     <td> <%= pitcher.name %> </td>
     <td> <%= pitcher.team.name %> </td>
     <td> P </td>
-    <td> <%= pitcher.display_fd_salary %> </td>
-    <td> <%= pitcher.fd_season_ppg %> </td>
-    <td> <%= pitcher.ytd_fd_pts_per_1000_dollars %> </td>
-    <td> <%= sprintf('%.2f', pitcher.zips_fd_pts_per_game) %> </td>
-    <td> <%= pitcher.zips_fd_pts_per_1000_dollars %> </td>
+    <td> <%= pitcher.display_dk_salary %> </td>
+    <td> <%= pitcher.dk_season_ppg %> </td>
+    <td> <%= pitcher.ytd_dk_pts_per_1000_dollars %> </td>
+    <td> <%= sprintf('%.2f', pitcher.zips_dk_pts_per_game) %> </td>
+    <td> <%= pitcher.zips_dk_pts_per_1000_dollars %> </td>
     <td> <%= pitcher.opponent %> </td>
     <td><%= check_box_tag "pitcher_ids[]", pitcher.id %></td>
   </tr>
@@ -48,9 +48,9 @@
   <th> Player </th>
   <th> Team </th>
   <th> Position </th>
-  <th> FD Salary </th>
-  <th> FD Season Pts/Game </th>
-  <th> YTD FD Pts/$1000 </th>
+  <th> DK Salary </th>
+  <th> DK Season Pts/Game </th>
+  <th> YTD DK Pts/$1000 </th>
   <th> Exp ZIPS Pts/Game (pn) </th>
   <th> ZIPS Pts/1000$ (pn) </th>
   <th> Exp ZIPS Pts/Game (pf) </th>
@@ -66,14 +66,14 @@
     <td> <%= c.name %> </td>
     <td> <%= c.team.name %> </td>
     <td> <%= c.position %> </td>
-    <td> <%= c.display_fd_salary %> </td>
-    <td> <%= c.fd_season_ppg %> </td>
-    <td> <%= c.ytd_fd_pts_per_1000_dollars %> </td>
-    <td> <%= c.zips_fd_pts_per_game_park_neutral %> </td>
-    <td> <%= c.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
-    <td> <%= c.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= c.zips_adj_fd_ppg %> </td>
-    <td> <%= c.adj_fd_pts_per_1000_dollars %> </td>
+    <td> <%= c.display_dk_salary %> </td>
+    <td> <%= c.dk_season_ppg %> </td>
+    <td> <%= c.ytd_dk_pts_per_1000_dollars %> </td>
+    <td> <%= c.zips_dk_pts_per_game_park_neutral %> </td>
+    <td> <%= c.zips_dk_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= c.zips_dk_pts_per_game_park_adj %> </td>
+    <td> <%= c.zips_adj_dk_ppg %> </td>
+    <td> <%= c.adj_dk_pts_per_1000_dollars %> </td>
     <td> <%= c.pitcher.name unless c.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", c.id %></td>
   </tr>
@@ -88,9 +88,9 @@
   <th> Player </th>
   <th> Team </th>
   <th> Position </th>
-  <th> FD Salary </th>
-  <th> FD Season Pts/Game </th>
-  <th> YTD FD Pts/$1000 </th>
+  <th> DK Salary </th>
+  <th> DK Season Pts/Game </th>
+  <th> YTD DK Pts/$1000 </th>
   <th> Exp ZIPS Pts/Game (pn) </th>
   <th> ZIPS Pts/1000$ (pn) </th>
   <th> Exp ZIPS Pts/Game (pf) </th>
@@ -106,14 +106,14 @@
     <td> <%= fb.name %> </td>
     <td> <%= fb.team.name %> </td>
     <td> <%= fb.position %> </td>
-    <td> <%= fb.display_fd_salary %> </td>
-    <td> <%= fb.fd_season_ppg %> </td>
-    <td> <%= fb.ytd_fd_pts_per_1000_dollars %> </td>
-    <td> <%= fb.zips_fd_pts_per_game_park_neutral %> </td>
-    <td> <%= fb.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
-    <td> <%= fb.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= fb.zips_adj_fd_ppg %> </td>
-    <td> <%= fb.adj_fd_pts_per_1000_dollars %> </td>
+    <td> <%= fb.display_dk_salary %> </td>
+    <td> <%= fb.dk_season_ppg %> </td>
+    <td> <%= fb.ytd_dk_pts_per_1000_dollars %> </td>
+    <td> <%= fb.zips_dk_pts_per_game_park_neutral %> </td>
+    <td> <%= fb.zips_dk_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= fb.zips_dk_pts_per_game_park_adj %> </td>
+    <td> <%= fb.zips_adj_dk_ppg %> </td>
+    <td> <%= fb.adj_dk_pts_per_1000_dollars %> </td>
     <td> <%= fb.pitcher.name unless fb.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", fb.id %></td>
   </tr>
@@ -128,9 +128,9 @@
   <th> Player </th>
   <th> Team </th>
   <th> Position </th>
-  <th> FD Salary </th>
-  <th> FD Season Pts/Game </th>
-  <th> YTD FD Pts/$1000 </th>
+  <th> DK Salary </th>
+  <th> DK Season Pts/Game </th>
+  <th> YTD DK Pts/$1000 </th>
   <th> Exp ZIPS Pts/Game (pn) </th>
   <th> ZIPS Pts/1000$ (pn) </th>
   <th> Exp ZIPS Pts/Game (pf) </th>
@@ -146,14 +146,14 @@
     <td> <%= sb.name %> </td>
     <td> <%= sb.team.name %> </td>
     <td> <%= sb.position %> </td>
-    <td> <%= sb.display_fd_salary %> </td>
-    <td> <%= sb.fd_season_ppg %> </td>
-    <td> <%= sb.ytd_fd_pts_per_1000_dollars %> </td>
-    <td> <%= sb.zips_fd_pts_per_game_park_neutral %> </td>
-    <td> <%= sb.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
-    <td> <%= sb.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= sb.zips_adj_fd_ppg %> </td>
-    <td> <%= sb.adj_fd_pts_per_1000_dollars %> </td>
+    <td> <%= sb.display_dk_salary %> </td>
+    <td> <%= sb.dk_season_ppg %> </td>
+    <td> <%= sb.ytd_dk_pts_per_1000_dollars %> </td>
+    <td> <%= sb.zips_dk_pts_per_game_park_neutral %> </td>
+    <td> <%= sb.zips_dk_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= sb.zips_dk_pts_per_game_park_adj %> </td>
+    <td> <%= sb.zips_adj_dk_ppg %> </td>
+    <td> <%= sb.adj_dk_pts_per_1000_dollars %> </td>
     <td> <%= sb.pitcher.name unless sb.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", sb.id %></td>
   </tr>
@@ -168,9 +168,9 @@
   <th> Player </th>
   <th> Team </th>
   <th> Position </th>
-  <th> FD Salary </th>
-  <th> FD Season Pts/Game </th>
-  <th> YTD FD Pts/$1000 </th>
+  <th> DK Salary </th>
+  <th> DK Season Pts/Game </th>
+  <th> YTD DK Pts/$1000 </th>
   <th> Exp ZIPS Pts/Game (pn) </th>
   <th> ZIPS Pts/1000$ (pn) </th>
   <th> Exp ZIPS Pts/Game (pf) </th>
@@ -186,14 +186,14 @@
     <td> <%= tb.name %> </td>
     <td> <%= tb.team.name %> </td>
     <td> <%= tb.position %> </td>
-    <td> <%= tb.display_fd_salary %> </td>
-    <td> <%= tb.fd_season_ppg %> </td>
-    <td> <%= tb.ytd_fd_pts_per_1000_dollars %> </td>
-    <td> <%= tb.zips_fd_pts_per_game_park_neutral %> </td>
-    <td> <%= tb.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
-    <td> <%= tb.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= tb.zips_adj_fd_ppg %> </td>
-    <td> <%= tb.adj_fd_pts_per_1000_dollars %> </td>
+    <td> <%= tb.display_dk_salary %> </td>
+    <td> <%= tb.dk_season_ppg %> </td>
+    <td> <%= tb.ytd_dk_pts_per_1000_dollars %> </td>
+    <td> <%= tb.zips_dk_pts_per_game_park_neutral %> </td>
+    <td> <%= tb.zips_dk_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= tb.zips_dk_pts_per_game_park_adj %> </td>
+    <td> <%= tb.zips_adj_dk_ppg %> </td>
+    <td> <%= tb.adj_dk_pts_per_1000_dollars %> </td>
     <td> <%= tb.pitcher.name unless tb.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", tb.id %></td>
   </tr>
@@ -208,9 +208,9 @@
   <th> Player </th>
   <th> Team </th>
   <th> Position </th>
-  <th> FD Salary </th>
-  <th> FD Season Pts/Game </th>
-  <th> YTD FD Pts/$1000 </th>
+  <th> DK Salary </th>
+  <th> DK Season Pts/Game </th>
+  <th> YTD DK Pts/$1000 </th>
   <th> Exp ZIPS Pts/Game (pn) </th>
   <th> ZIPS Pts/1000$ (pn) </th>
   <th> Exp ZIPS Pts/Game (pf) </th>
@@ -226,14 +226,14 @@
     <td> <%= ss.name %> </td>
     <td> <%= ss.team.name %> </td>
     <td> <%= ss.position %> </td>
-    <td> <%= ss.display_fd_salary %> </td>
-    <td> <%= ss.fd_season_ppg %> </td>
-    <td> <%= ss.ytd_fd_pts_per_1000_dollars %> </td>
-    <td> <%= ss.zips_fd_pts_per_game_park_neutral %> </td>
-    <td> <%= ss.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
-    <td> <%= ss.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= ss.zips_adj_fd_ppg %> </td>
-    <td> <%= ss.adj_fd_pts_per_1000_dollars %> </td>
+    <td> <%= ss.display_dk_salary %> </td>
+    <td> <%= ss.dk_season_ppg %> </td>
+    <td> <%= ss.ytd_dk_pts_per_1000_dollars %> </td>
+    <td> <%= ss.zips_dk_pts_per_game_park_neutral %> </td>
+    <td> <%= ss.zips_dk_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= ss.zips_dk_pts_per_game_park_adj %> </td>
+    <td> <%= ss.zips_adj_dk_ppg %> </td>
+    <td> <%= ss.adj_dk_pts_per_1000_dollars %> </td>
     <td> <%= ss.pitcher.name unless ss.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", ss.id %></td>
   </tr>
@@ -248,9 +248,9 @@
   <th> Player </th>
   <th> Team </th>
   <th> Position </th>
-  <th> FD Salary </th>
-  <th> FD Season Pts/Game </th>
-  <th> YTD FD Pts/$1000 </th>
+  <th> DK Salary </th>
+  <th> DK Season Pts/Game </th>
+  <th> YTD DK Pts/$1000 </th>
   <th> Exp ZIPS Pts/Game (pn) </th>
   <th> ZIPS Pts/1000$ (pn) </th>
   <th> Exp ZIPS Pts/Game (pf) </th>
@@ -266,14 +266,14 @@
     <td> <%= of.name %> </td>
     <td> <%= of.team.name %> </td>
     <td> <%= of.position %> </td>
-    <td> <%= of.display_fd_salary %> </td>
-    <td> <%= of.fd_season_ppg %> </td>
-    <td> <%= of.ytd_fd_pts_per_1000_dollars %> </td>
-    <td> <%= of.zips_fd_pts_per_game_park_neutral %> </td>
-    <td> <%= of.zips_fd_pts_per_1000_dollars_park_neutral %> </td>
-    <td> <%= of.zips_fd_pts_per_game_park_adj %> </td>
-    <td> <%= of.zips_adj_fd_ppg %> </td>
-    <td> <%= of.adj_fd_pts_per_1000_dollars %> </td>
+    <td> <%= of.display_dk_salary %> </td>
+    <td> <%= of.dk_season_ppg %> </td>
+    <td> <%= of.ytd_dk_pts_per_1000_dollars %> </td>
+    <td> <%= of.zips_dk_pts_per_game_park_neutral %> </td>
+    <td> <%= of.zips_dk_pts_per_1000_dollars_park_neutral %> </td>
+    <td> <%= of.zips_dk_pts_per_game_park_adj %> </td>
+    <td> <%= of.zips_adj_dk_ppg %> </td>
+    <td> <%= of.adj_dk_pts_per_1000_dollars %> </td>
     <td> <%= of.pitcher.name unless of.pitcher.blank? %> </td>
     <td><%= check_box_tag "batter_ids[]", of.id %></td>
   </tr>

@@ -78,6 +78,10 @@
 #  cs                       :integer
 #  fd_alias                 :string
 #  fg_alias                 :string
+#  dk_salary                :integer
+#  dk_season_ppg            :float
+#  zips_adj_dk_ppg          :float
+#  dk_alias                 :string
 #
 # Indexes
 #
@@ -90,9 +94,17 @@ class Batter < ActiveRecord::Base
   belongs_to :pitcher
   belongs_to :team
 
-  before_save :set_zips_adj_fd_ppg, :remove_from_lineup
+  before_save :remove_from_lineup
 
   def display_fd_salary
+    if self.fd_salary.blank?
+      "N/A"
+    else
+      self.fd_salary
+    end
+  end
+
+  def display_dk_salary
     if self.fd_salary.blank?
       "N/A"
     else
@@ -127,6 +139,17 @@ class Batter < ActiveRecord::Base
       self.pitcher.team.fd_park_factor
     elsif game.home_id == self.team_id
       self.team.fd_park_factor
+    end
+  end
+
+  def dk_park_factor
+    game = Matchup.where("visitor_id in (?) or home_id in (?)", self.team_id, self.team_id).where(day: Date.today).first
+    if game.nil? || self.pitcher.nil?
+      1
+    elsif game.visitor_id == self.team_id
+      self.pitcher.team.dk_park_factor
+    elsif game.home_id == self.team_id
+      self.team.dk_park_factor
     end
   end
 
@@ -321,9 +344,38 @@ class Batter < ActiveRecord::Base
       ppg += season_pts / self.zips_pa.to_f * self.papg
     end
     if self.team.park_factor > 1
-      ppg = ppg / ((self.team.park_factor - 1) / 2 + 1)
+      ppg = ppg / ((self.team.fd_park_factor - 1) / 2 + 1)
     else
-      ppg = ppg / (1 - (1 - self.team.park_factor) / 2)
+      ppg = ppg / (1 - (1 - self.team.fd_park_factor) / 2)
+    end
+    ppg.round(2)
+  end
+
+  def zips_dk_pts_per_game_park_neutral
+    ppg = 0
+    unless self.zips_pa_rhp.blank?
+      if self.pitcher.throws == "right"
+        season_pts = self.zips_singles_rhp * 3 + self.zips_doubles_rhp * 5 + self.zips_triples_rhp * 8 + self.zips_homers_rhp * 10 + self.zips_rbis_rhp * 2 +
+        + self.zips_walks_rhp * 2 + self.zips_hbps_rhp * 2
+        ppg = season_pts / self.zips_pa_rhp.to_f * self.papg * 2 / 3
+      else
+        season_pts = self.zips_singles_lhp * 3 + self.zips_doubles_lhp * 5 + self.zips_triples_lhp * 8 + self.zips_homers_lhp * 10 + self.zips_rbis_lhp * 2 +
+        + self.zips_walks_lhp * 2 + self.zips_hbps_lhp * 2
+        ppg = season_pts / self.zips_pa_rhp.to_f * self.papg * 2 / 3
+      end
+      ppg += (self.zips_runs * 2 + self.zips_sb * 5 + self.zips_cs * -2) / self.zips_pa.to_f * self.papg
+      season_pts = self.zips_singles * 3 + self.zips_doubles * 5 + self.zips_triples * 8 + self.zips_homers * 10 + self.zips_rbis * 2 +
+       self.zips_runs * 2 + self.zips_walks * 2 + self.zips_sb * 5 + self.zips_hbps * 2 + self.zips_cs * -2
+      ppg += season_pts / self.zips_pa.to_f * self.papg / 3
+    else
+      season_pts = self.zips_singles * 3 + self.zips_doubles * 5 + self.zips_triples * 8 + self.zips_homers * 10 + self.zips_rbis * 2 +
+       self.zips_runs * 2 + self.zips_walks * 2 + self.zips_sb * 5 + self.zips_hbps * 2 + self.zips_cs * -2
+      ppg += season_pts / self.zips_pa.to_f * self.papg
+    end
+    if self.team.park_factor > 1
+      ppg = ppg / ((self.team.dk_park_factor - 1) / 2 + 1)
+    else
+      ppg = ppg / (1 - (1 - self.team.dk_park_factor) / 2)
     end
     ppg.round(2)
   end
@@ -332,8 +384,16 @@ class Batter < ActiveRecord::Base
     (self.zips_fd_pts_per_game_park_neutral * self.fd_park_factor).round(2)
   end
 
+  def zips_dk_pts_per_game_park_adj
+    (self.zips_dk_pts_per_game_park_neutral * self.dk_park_factor).round(2)
+  end
+
   def ytd_fd_pts_per_1000_dollars
     (self.fd_season_ppg / self.fd_salary * 1000).round(2)
+  end
+
+  def ytd_dk_pts_per_1000_dollars
+    (self.dk_season_ppg / self.dk_salary * 1000).round(2)
   end
 
   def zips_fd_pts_per_1000_dollars_park_neutral
@@ -341,6 +401,14 @@ class Batter < ActiveRecord::Base
       "N/A"
     else
       (self.zips_fd_pts_per_game_park_neutral / self.fd_salary * 1000).round(2)
+    end
+  end
+
+  def zips_dk_pts_per_1000_dollars_park_neutral
+    if self.dk_salary.blank?
+      "N/A"
+    else
+      (self.zips_dk_pts_per_game_park_neutral / self.dk_salary * 1000).round(2)
     end
   end
 
@@ -352,11 +420,19 @@ class Batter < ActiveRecord::Base
     end
   end
 
+  def adj_dk_pts_per_1000_dollars
+    if self.dk_salary.blank? || self.pitcher.blank?
+      "N/A"
+    else
+      sprintf('%.2f', self.zips_adj_dk_ppg.to_f / self.dk_salary * 1000)
+    end
+  end
+
   def set_zips_adj_fd_ppg
     if self.pitcher.blank?
       self.zips_adj_fd_ppg = 0
     else
-      self.zips_adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 19.072 * self.zips_fd_pts_per_game_park_adj).round(2)
+      self.zips_adj_fd_ppg = (self.pitcher.fd_exp_pts_allowed / 19.072 * self.zips_fd_pts_per_game_park_adj)
     end
     if self.team.home?
       self.zips_adj_fd_ppg *= 1.0337
@@ -364,6 +440,20 @@ class Batter < ActiveRecord::Base
       self.zips_adj_fd_ppg *= 0.9663
     end
     self.zips_adj_fd_ppg = self.zips_adj_fd_ppg.round(2)
+  end
+
+  def set_zips_adj_dk_ppg
+    if self.pitcher.blank?
+      self.zips_adj_dk_ppg = 0
+    else
+      self.zips_adj_dk_ppg = (self.pitcher.dk_exp_pts_allowed / 19.072 * self.zips_dk_pts_per_game_park_adj)
+    end
+    if self.team.home?
+      self.zips_adj_dk_ppg *= 1.0337
+    else
+      self.zips_adj_dk_ppg *= 0.9663
+    end
+    self.zips_adj_dk_ppg = self.zips_adj_dk_ppg.round(2)
   end
 
   def self.get_lineups
@@ -397,14 +487,13 @@ class Batter < ActiveRecord::Base
     my_hash = JSON.parse(curl_req)
     players = my_hash["players"]
     players.each do |x|
-      #binding.pry
       if x["position"] == "P" && x["probable_pitcher"] == true
         p = Pitcher.find_by(name: x["first_name"] + " " + x["last_name"])
         if p.nil?
           p = Pitcher.find_by(fd_alias: x["first_name"] + " " + x["last_name"])
         end
         unless p.nil?
-          p.update_attributes(fd_salary: x["salary"], fd_season_ppg: x["fppg"].round(1))
+          p.update_attributes(fd_salary: x["salary"], fd_season_ppg: (x["fppg"] || 0).round(1))
         end
       else
         b = Batter.find_by(name: x["first_name"] + " " + x["last_name"])
@@ -412,8 +501,40 @@ class Batter < ActiveRecord::Base
           b = Batter.find_by(fd_alias: x["first_name"] + " " + x["last_name"])
         end
         unless b.nil?
-          b.update_attributes(position: x["position"], fd_salary: x["salary"], fd_season_ppg: x["fppg"].round(1))
+          b.update_attributes(position: x["position"], fd_salary: x["salary"], fd_season_ppg: (x["fppg"] || 0).round(1))
           b.get_pitcher_id
+          b.set_zips_adj_fd_ppg
+        end
+      end
+    end
+    true
+  end
+
+  def self.get_dk_data game
+    Batter.update_all dk_salary: nil
+    Pitcher.update_all dk_salary: nil
+    game_id = game
+    curl_req = `curl 'https://www.draftkings.com/lineup/getavailableplayers?draftGroupId=#{game_id}' -H 'Cookie: optimizelyEndUserId=oeu1423038635856r0.22244833619333804; __qca=P0-1082170942-1423038637115; C3UID-145=1947225051423038568; C3UID=1947225051423038568; ajs_anonymous_id=%2245e9bc12-e2fa-4ef5-84fe-6ba5cc38701d%22; __unam=e16b3e5-14c23568af6-658b0850-1; olfsk=olfsk9912491608411074; hblid=0obCK3SrEwXuxrca0D7VN20LAV8Ds51y; HKN=lS2QFWeChSp3b7igWi4A039ENMnjorQTbFHD0eHZzc9PrAreRQX8Cp3FDNvbY4Cl; mp_37cf8d1fc25bac759065681b51b26edb_mixpanel=%7B%22distinct_id%22%3A%201894817%2C%22%24initial_referrer%22%3A%20%22%24direct%22%2C%22%24initial_referring_domain%22%3A%20%22%24direct%22%2C%22username%22%3A%20null%2C%22%24first_name%22%3A%20%22%22%2C%22%24name%22%3A%20%22%22%2C%22%24search_engine%22%3A%20%22google%22%2C%22mp_name_tag%22%3A%20%22cubsker%22%2C%22id%22%3A%201894817%2C%22%24username%22%3A%20%22cubsker%22%2C%22Experiment%3A%20DraftKings%20Mobile%22%3A%20%22Variation%20%231%22%2C%22Experiment%3A%20DTI%20LP%20(v1%20vs%20v2)%20-%20Desktop%20Only%22%3A%20%22Original%22%2C%22sessionId%22%3A%20%22556359546%22%2C%22subsessionId%22%3A%20%22558590028%22%2C%22visitorId%22%3A%20%22816385263%22%2C%22campaignId%22%3A%20%221223548523%22%7D; rafsess=1; __zlcmid=VqeoyKImMkmogX; __utmt=1; EXC=589389443:; _gat=1; rafseen=3%7C2073617930; optimizelySegments=%7B%22215091535%22%3A%22false%22%2C%22215399201%22%3A%22referral%22%2C%22215484327%22%3A%22gc%22%7D; optimizelyBuckets=%7B%221343927750%22%3A%221263611178%22%2C%222347061420%22%3A%222382470066%22%2C%222777810606%22%3A%222775430121%22%7D; __utma=180391794.528564798.1423038637.1437629328.1437632896.92; __utmb=180391794.6.10.1437632896; __utmc=180391794; __utmz=180391794.1432674558.38.4.utmcsr=baseballpress.com|utmccn=(referral)|utmcmd=referral|utmcct=/lineups; ajs_group_id=null; ajs_user_id=1894817; _ga=GA1.2.528564798.1423038637; optimizelyPendingLogEvents=%5B%5D; jwe=Y8ge3L9iIpJpoyjk754OYTvzlV7C+E9Fvys621sp7dZdI+aE20BHaosor34GN6OnyKtdWjzk74CvBc5mHXmmVb8DT1FphoKWTd8RGa9G1ddg1hg/CDM/7i8SutiUqjJsFaUDAICHbqk3KbA/Mve2iOfrKdU0uqmGIR053s0EhuY2fzQ5IJeWMfMxF13OEJxYZ6TooIErmFYlxdZuUNdUEpEBXoUMcKmwgIL2IUtZOpoqUSBxfovH8313xKs0x5UGnOYcFylbeI78T+/N+pzKPQB6Qi97/NIys+VO5hZtSbt7wu9V1T2Qog00anMu6T990lq6SP5EPAlQrkAXgM4W3m7iE+mHKx5E98eL/Yrx5IAfYGMBvVc1X1t2YAaGlYUh1fo59pXAWcmma2hZPsB3barYNh5BtLaJb+D5wctbnDqKQ8dXwsMpr8+Tcou+sWXDy21zXgb9/dp5Hf4f9Oc6ndzOwrM2Cqqrm/+O4f8sGP7cNy/ANEpOuFnPZEvpMJgRaIQqyy1p1hjFVQaCtoOrqyi/KyifO5fKgorrl26ys3mkMtD6ideSyKm8WkGWYda7onScMhKtarH4IU6P5Duz8Q==; iv=9k9mz9iEVRU99YljKY2G/Q==; uk=iXLZuEKMRuku94o/e+6c4C55zNNv3dPd8HIbHmEfiFYEr4aK8iNmNOSAFMdXb8bhVNbrNeSMCxzbJtTCjjorAQ==; STIDN=eyJDIjoxMjIzNTQ4NTIzLCJTIjo1ODYzOTE0NTQsIlNTIjo1ODkzODk0NDMsIlYiOjgxNjM4NTI2MywiRSI6IjIwMTUtMDctMjNUMDY6NTY6MzIuNjYyNzkwNVoifQ==; STH=c052b4b67b08b6d9b752e5271fc07d8c518daefbf987ac9d66dfab7e2b578ac9; VIDN=816385263; SIDN=586391454; SSIDN=589389443; SN=1223548523; SINFN=PID=42&AOID=1475&PUID=1894817&SSEG=2:1&GLI=223&BID=0&BH=' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: en-US,en;q=0.8' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36' -H 'Accept: */*' -H 'Referer: https://www.draftkings.com/lineup' -H 'X-Requested-With: XMLHttpRequest' -H 'Connection: keep-alive' --compressed`
+    my_hash = JSON.parse(curl_req)
+    players = my_hash["playerList"]
+    players.each do |x|
+      if x["pn"] == "SP" && x["pp"] == 1
+        p = Pitcher.find_by(name: x["fn"] + " " + x["ln"])
+        if p.nil?
+          p = Pitcher.find_by(dk_alias: x["fn"] + " " + x["ln"])
+        end
+        unless p.nil?
+          p.update_attributes(dk_salary: x["s"], dk_season_ppg: x["ppg"])
+        end
+      else
+        b = Batter.find_by(name: x["fn"] + " " + x["ln"])
+        if b.nil?
+          b = Batter.find_by(dk_alias: x["fn"] + " " + x["ln"])
+        end
+        unless b.nil?
+          b.update_attributes(position: x["pn"], dk_salary: x["s"], dk_season_ppg: x["ppg"])
+          b.get_pitcher_id
+          b.set_zips_adj_dk_ppg
         end
       end
     end
@@ -559,13 +680,13 @@ class Batter < ActiveRecord::Base
   end
 
   def self.optimal_fd
-    catchers = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "C", true, 0, 0)
-    firsts = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "1B", true, 0, 0)
-    seconds = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "2B", true, 0, 0)
-    thirds = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "3B", true, 0, 0)
-    shorts = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "SS", true, 0, 0)
-    ofs = Batter.where("position = ? and selected = ? and pitcher_id > ? and lineup_spot > ?", "OF", true, 0, 0)
-    pitchers = Pitcher.where("fd_salary > ? and selected = ?", 0, true)
+    catchers = Batter.where("position = ? and selected = ? and pitcher_id > ?", "C", true, 0)
+    firsts = Batter.where("position = ? and selected = ? and pitcher_id > ?", "1B", true, 0)
+    seconds = Batter.where("position = ? and selected = ? and pitcher_id > ?", "2B", true, 0)
+    thirds = Batter.where("position = ? and selected = ? and pitcher_id > ?", "3B", true, 0)
+    shorts = Batter.where("position = ? and selected = ? and pitcher_id > ?", "SS", true, 0)
+    ofs = Batter.where("position = ? and selected = ? and pitcher_id > ?", "OF", true, 0)
+    pitchers = Pitcher.where("selected = ?", true)
     pts_counter = 0
     salary_counter = 0
     roster = []
@@ -673,6 +794,129 @@ class Batter < ActiveRecord::Base
     team + " " + high_score.round(2).to_s + " $" + high_salary.to_s
   end
 
+  def self.optimal_dk
+    catchers = Batter.where("position = ? and selected = ? and pitcher_id > ?", "C", true, 0)
+    firsts = Batter.where("position = ? and selected = ? and pitcher_id > ?", "1B", true, 0)
+    seconds = Batter.where("position = ? and selected = ? and pitcher_id > ?", "2B", true, 0)
+    thirds = Batter.where("position = ? and selected = ? and pitcher_id > ?", "3B", true, 0)
+    shorts = Batter.where("position = ? and selected = ? and pitcher_id > ?", "SS", true, 0)
+    ofs = Batter.where("position = ? and selected = ? and pitcher_id > ?", "OF", true, 0)
+    pitchers = Pitcher.where("selected = ?", true)
+    pts_counter = 0
+    salary_counter = 0
+    roster = []
+    team_array = []
+    high_score = 0
+    team = ""
+    high_salary = 0
+    catchers.each do |c|
+      roster << c.name
+      team_array << c.team.name
+      pts_counter += c.zips_adj_dk_ppg
+      salary_counter += c.dk_salary
+      firsts.each do |f|
+        roster << f.name
+        team_array << f.team.name
+        pts_counter += f.zips_adj_dk_ppg
+        salary_counter += f.dk_salary
+        seconds.each do |s|
+          roster << s.name
+          team_array << s.team.name
+          pts_counter += s.zips_adj_dk_ppg
+          salary_counter += s.dk_salary
+          thirds.each do |t|
+            roster << t.name
+            team_array << t.team.name
+            pts_counter += t.zips_adj_dk_ppg
+            salary_counter += t.dk_salary
+            shorts.each do |ss|
+              roster << ss.name
+              team_array << ss.team.name
+              pts_counter += ss.zips_adj_dk_ppg
+              salary_counter += ss.dk_salary
+              ofs.each do |ofa|
+                roster << ofa.name
+                team_array << ofa.team.name
+                pts_counter += ofa.zips_adj_dk_ppg
+                salary_counter += ofa.dk_salary
+                ofs.each do |ofb|
+                  roster << ofb.name
+                  team_array << ofb.team.name
+                  pts_counter += ofb.zips_adj_dk_ppg
+                  salary_counter += ofb.dk_salary
+                  ofs.each do |ofc|
+                    roster << ofc.name
+                    team_array << ofc.team.name
+                    pts_counter += ofc.zips_adj_dk_ppg
+                    salary_counter += ofc.dk_salary
+                    pitchers.each do |pa|
+                      roster << pa.name
+                      team_array << pa.team.name
+                      pts_counter += pa.zips_dk_pts_per_game
+                      salary_counter += pa.dk_salary
+                      pitchers.each do |pb|
+                        roster << pb.name
+                        team_array << pb.team.name
+                        pts_counter += pb.zips_dk_pts_per_game
+                        salary_counter += pb.fk_salary
+                        if salary_counter <= 50000 && pts_counter > high_score && roster.uniq.length == roster.length && team_array.uniq.length > 2
+                          high_score = pts_counter
+                          team = roster.join(", ")
+                          high_salary = salary_counter
+                        end
+                        roster.pop
+                        team_array.pop
+                        pts_counter -= p.zips_dk_pts_per_game
+                        salary_counter -= p.dk_salary
+                      end
+                      roster.pop
+                      team_array.pop
+                      pts_counter -= p.zips_dk_pts_per_game
+                      salary_counter -= p.dk_salary
+                    end
+                    roster.pop
+                    team_array.pop
+                    pts_counter -= ofc.zips_adj_dk_ppg
+                    salary_counter -= ofc.dk_salary
+                  end
+                  roster.pop
+                  team_array.pop
+                  pts_counter -= ofb.zips_adj_dk_ppg
+                  salary_counter -= ofb.dk_salary
+                end
+                roster.pop
+                team_array.pop
+                pts_counter -= ofa.zips_adj_dk_ppg
+                salary_counter -= ofa.dk_salary
+              end
+              roster.pop
+              team_array.pop
+              pts_counter -= ss.zips_adj_dk_ppg
+              salary_counter -= ss.dk_salary
+            end
+            roster.pop
+            team_array.pop
+            pts_counter -= t.zips_adj_dk_ppg
+            salary_counter -= t.dk_salary
+          end
+          roster.pop
+          team_array.pop
+          pts_counter -= s.zips_adj_dk_ppg
+          salary_counter -= s.dk_salary
+        end
+        roster.pop
+        team_array.pop
+        pts_counter -= f.zips_adj_dk_ppg
+        salary_counter -= f.dk_salary
+      end
+      roster.pop
+      team_array.pop
+      pts_counter -= c.zips_adj_dk_ppg
+      salary_counter -= c.dk_salary
+    end
+    team + " " + high_score.round(2).to_s + " $" + high_salary.to_s
+  end
+
   def self.catchers_sorted_by_adj_fd_pts_per_1000_dollars
     Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "C", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
   end
@@ -695,6 +939,30 @@ class Batter < ActiveRecord::Base
 
   def self.outfielders_sorted_by_adj_fd_pts_per_1000_dollars
     Batter.where("fd_salary > ? and position = ? and lineup_spot > ?", 0, "OF", 0).sort_by(&:adj_fd_pts_per_1000_dollars).reverse!
+  end
+
+  def self.catchers_sorted_by_adj_dk_pts_per_1000_dollars
+    Batter.where("dk_salary > ? and position = ? and lineup_spot > ?", 0, "C", 0).sort_by(&:adj_dk_pts_per_1000_dollars).reverse!
+  end
+
+  def self.firstbasemen_sorted_by_adj_dk_pts_per_1000_dollars
+    Batter.where("dk_salary > ? and position = ? and lineup_spot > ?", 0, "1B", 0).sort_by(&:adj_dk_pts_per_1000_dollars).reverse!
+  end
+
+  def self.secondbasemen_sorted_by_adj_dk_pts_per_1000_dollars
+    Batter.where("dk_salary > ? and position = ? and lineup_spot > ?", 0, "2B", 0).sort_by(&:adj_dk_pts_per_1000_dollars).reverse!
+  end
+
+  def self.thirdbasemen_sorted_by_adj_dk_pts_per_1000_dollars
+    Batter.where("dk_salary > ? and position = ? and lineup_spot > ?", 0, "3B", 0).sort_by(&:adj_dk_pts_per_1000_dollars).reverse!
+  end
+
+  def self.shortstops_sorted_by_adj_dk_pts_per_1000_dollars
+    Batter.where("dk_salary > ? and position = ? and lineup_spot > ?", 0, "SS", 0).sort_by(&:adj_dk_pts_per_1000_dollars).reverse!
+  end
+
+  def self.outfielders_sorted_by_adj_dk_pts_per_1000_dollars
+    Batter.where("dk_salary > ? and position = ? and lineup_spot > ?", 0, "OF", 0).sort_by(&:adj_dk_pts_per_1000_dollars).reverse!
   end
 
   require 'csv'

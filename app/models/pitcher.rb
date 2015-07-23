@@ -36,6 +36,9 @@
 #  era            :float
 #  fd_alias       :string
 #  fg_alias       :string
+#  dk_salary      :integer
+#  dk_season_ppg  :float
+#  dk_alias       :string
 #
 # Indexes
 #
@@ -140,13 +143,30 @@ class Pitcher < ActiveRecord::Base
     end
   end
 
+  def display_dk_salary
+    if self.dk_salary.blank?
+      "N/A"
+    else
+      self.dk_salary
+    end
+  end
+
   def zips_fd_pts_per_game
     season_pts = self.zips_wins * 4 + self.zips_er * -1 + self.zips_so * 1 + self.zips_ip * 1
     season_pts / self.zips_games.to_f
   end
 
+  def zips_dk_pts_per_game
+    season_pts = self.zips_wins * 4 + self.zips_er * -2 + self.zips_so * 2 + self.zips_ip * 2.25 + self.zips_whip * self.zips_ip * -0.6
+    season_pts / self.zips_games.to_f
+  end
+
   def ytd_fd_pts_per_1000_dollars
     (self.fd_season_ppg / self.fd_salary * 1000).round(2)
+  end
+
+  def ytd_dk_pts_per_1000_dollars
+    (self.dk_season_ppg / self.dk_salary * 1000).round(2)
   end
 
   def zips_fd_pts_per_1000_dollars
@@ -157,8 +177,20 @@ class Pitcher < ActiveRecord::Base
     end
   end
 
+  def zips_dk_pts_per_1000_dollars
+    if self.dk_salary.blank?
+      "N/A"
+    else
+      sprintf('%.2f', self.zips_dk_pts_per_game / self.dk_salary * 1000)
+    end
+  end
+
   def self.sorted_by_zips_fd_pts_per_1000_dollars
     Pitcher.where("fd_salary > 0").sort_by(&:zips_fd_pts_per_1000_dollars).reverse!
+  end
+
+  def self.sorted_by_zips_dk_pts_per_1000_dollars
+    Pitcher.where("dk_salary > 0").sort_by(&:zips_dk_pts_per_1000_dollars).reverse!
   end
 
   def zips_non_homers
@@ -175,6 +207,10 @@ class Pitcher < ActiveRecord::Base
 
   def zips_triples
     self.zips_non_homers * 0.025
+  end
+
+  def zips_bb_hbp
+    self.zips_whip - self.zips_hits / self.zips_ip.to_f
   end
 
   def fd_exp_pts_allowed
@@ -200,11 +236,43 @@ class Pitcher < ActiveRecord::Base
       baserunners_counter + 0.063 * ip_counter * 2 + ip_counter * 3.0 * -0.25) / ip_counter * (9 - starter_innings)
     total_pts = starter_pts + reliever_pts
     if self.team.park_factor > 1
+      total_pts = total_pts / ((self.team.fd_park_factor - 1) / 2 + 1)
+    else
+      total_pts = total_pts / (1 - (1 - self.team.fd_park_factor) / 2)
+    end
+    total_pts
+  end
+
+  def dk_exp_pts_allowed
+    starter_innings = self.zips_ip / self.zips_games.to_f
+    starter_pts = (self.zips_singles * 3 + self.zips_doubles * 5 + self.zips_triples * 8 + self.zips_homers * 10 + self.zips_er * 1.034 * 2 + self.zips_er * 1.09 * 2 +
+      self.zips_bb_hbp * self.zips_ip * 2 + 0.063 * self.zips_ip * 5 + 0.0235 * zips_ip * -2 ) / self.zips_ip * starter_innings
+    relievers = Pitcher.where(team_id: self.team_id, reliever: true)
+    singles_counter = 0
+    doubles_counter = 0
+    triples_counter = 0
+    homers_counter = 0
+    er_counter = 0
+    bb_hbp_counter = 0
+    ip_counter = 0
+    relievers.each do |r|
+      singles_counter += r.zips_singles
+      doubles_counter += r.zips_doubles
+      triples_counter += r.zips_triples
+      homers_counter += r.zips_homers
+      er_counter += r.zips_er
+      bb_hbp_counter += r.zips_bb_hbp * r.zips_ip
+      ip_counter += r.zips_ip
+    end
+    reliever_pts = (singles_counter * 3 + doubles_counter * 5 + triples_counter * 8 + homers_counter * 10 + er_counter * 1.034 * 2 + er_counter * 1.09 * 2 +
+      bb_hbp_counter * 2 + 0.063 * ip_counter * 5 + 0.0235 * ip_counter * -2) / ip_counter * (9 - starter_innings)
+    total_pts = starter_pts + reliever_pts
+    if self.team.park_factor > 1
       total_pts = total_pts / ((self.team.park_factor - 1) / 2 + 1)
     else
       total_pts = total_pts / (1 - (1 - self.team.park_factor) / 2)
     end
-    total_pts * self.park_factor
+    total_pts
   end
 
   def opponent

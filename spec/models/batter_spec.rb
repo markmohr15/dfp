@@ -78,6 +78,10 @@
 #  cs                       :integer
 #  fd_alias                 :string
 #  fg_alias                 :string
+#  dk_salary                :integer
+#  dk_season_ppg            :float
+#  zips_adj_dk_ppg          :float
+#  dk_alias                 :string
 #
 # Indexes
 #
