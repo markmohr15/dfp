@@ -94,7 +94,15 @@ class Batter < ActiveRecord::Base
   belongs_to :pitcher
   belongs_to :team
 
-  before_save :remove_from_lineup
+  before_save :remove_from_lineup, :set_zips_adj_fd_ppg, :set_zips_adj_dk_ppg
+
+  def fanduel?
+    false if fd_salary.blank?
+  end
+
+  def draftkings?
+    false if dk_salary.blank?
+  end
 
   def display_fd_salary
     if self.fd_salary.blank?
@@ -446,7 +454,7 @@ class Batter < ActiveRecord::Base
     if self.pitcher.blank?
       self.zips_adj_dk_ppg = 0
     else
-      self.zips_adj_dk_ppg = (self.pitcher.dk_exp_pts_allowed / 19.072 * self.zips_dk_pts_per_game_park_adj)
+      self.zips_adj_dk_ppg = (self.pitcher.dk_exp_pts_allowed / 61.5 * self.zips_dk_pts_per_game_park_adj)
     end
     if self.team.home?
       self.zips_adj_dk_ppg *= 1.0337
@@ -503,7 +511,6 @@ class Batter < ActiveRecord::Base
         unless b.nil?
           b.update_attributes(position: x["position"], fd_salary: x["salary"], fd_season_ppg: (x["fppg"] || 0).round(1))
           b.get_pitcher_id
-          b.set_zips_adj_fd_ppg
         end
       end
     end
@@ -534,7 +541,6 @@ class Batter < ActiveRecord::Base
         unless b.nil?
           b.update_attributes(position: x["pn"], dk_salary: x["s"], dk_season_ppg: x["ppg"])
           b.get_pitcher_id
-          b.set_zips_adj_dk_ppg
         end
       end
     end
